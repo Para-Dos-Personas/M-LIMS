@@ -22,3 +22,11 @@ body {
 .MuiTypography-h4 {
   font-weight: 500;
 }
+.app-container {
+  display: flex;
+}
+
+.page-content {
+  flex-grow: 1;
+  padding: 24px;
+}

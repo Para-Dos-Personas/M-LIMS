@@ -39,31 +39,39 @@ const Notifications = () => {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Notifications
-      </Typography>
+      <Paper
+        elevation={6}
+        sx={{
+          p: 4,
+          background: 'linear-gradient(135deg, #fffde7 0%, #ffe082 100%)',
+          borderRadius: 4,
+        }}
+      >
+        <Typography variant="h4" gutterBottom color="warning.main" fontWeight={700}>
+          Notifications
+        </Typography>
+        <Box>
+          <List>
+            {notifications.length === 0 && (
+              <ListItem>
+                <ListItemText primary="No notifications." />
+              </ListItem>
+            )}
 
-      <Paper elevation={3}>
-        <List>
-          {notifications.length === 0 && (
-            <ListItem>
-              <ListItemText primary="No notifications." />
-            </ListItem>
-          )}
-
-          {notifications.map((n) => (
-            <ListItem key={n.id} secondaryAction={!n.is_read && (
-              <IconButton edge="end" onClick={() => handleMarkAsRead(n.id)}>
-                <CheckIcon />
-              </IconButton>
-            )}>
-              <ListItemText
-                primary={n.message}
-                secondary={`Type: ${n.type} • Date: ${new Date(n.created_at).toLocaleDateString()} ${n.is_read ? '(Read)' : '(Unread)'}`}
-              />
-            </ListItem>
-          ))}
-        </List>
+            {notifications.map((n) => (
+              <ListItem key={n.id} secondaryAction={!n.is_read && (
+                <IconButton edge="end" onClick={() => handleMarkAsRead(n.id)}>
+                  <CheckIcon />
+                </IconButton>
+              )}>
+                <ListItemText
+                  primary={n.message}
+                  secondary={`Type: ${n.type} • Date: ${new Date(n.created_at).toLocaleDateString()} ${n.is_read ? '(Read)' : '(Unread)'}`}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </Box>
       </Paper>
     </Container>
   );

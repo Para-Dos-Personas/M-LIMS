@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Box } from '@mui/material';
 import componentService from '../services/componentService';
 
 const ComponentTable = () => {
   const [components, setComponents] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+
+  // Search/filter state
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('');
+  const [location, setLocation] = useState('');
+  const [minQty, setMinQty] = useState('');
+  const [maxQty, setMaxQty] = useState('');
 
   const fetchComponents = async () => {
     try {
@@ -41,6 +48,16 @@ const ComponentTable = () => {
     }
   };
 
+  // Filtering logic
+  const filteredComponents = components.filter((c) =>
+    (c.name?.toLowerCase().includes(search.toLowerCase()) ||
+      c.part_number?.toLowerCase().includes(search.toLowerCase())) &&
+    (category ? c.category?.toLowerCase().includes(category.toLowerCase()) : true) &&
+    (location ? c.location?.toLowerCase().includes(location.toLowerCase()) : true) &&
+    (minQty ? Number(c.quantity) >= Number(minQty) : true) &&
+    (maxQty ? Number(c.quantity) <= Number(maxQty) : true)
+  );
+
   const columns = [
     { field: 'id', headerName: 'ID', width: 70 },
     { field: 'name', headerName: 'Name', flex: 1 },
@@ -48,6 +65,7 @@ const ComponentTable = () => {
     { field: 'category', headerName: 'Category', flex: 1 },
     { field: 'quantity', headerName: 'Qty', width: 100 },
     { field: 'location', headerName: 'Location', flex: 1 },
+    { field: 'critical_low', headerName: 'Critical Low', width: 120 }, // Show threshold
     {
       field: 'actions',
       headerName: 'Actions',
@@ -63,9 +81,45 @@ const ComponentTable = () => {
 
   return (
     <>
+      {/* Search/Filter Bar */}
+      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+        <TextField
+          label="Search Name/Part #"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          size="small"
+        />
+        <TextField
+          label="Category"
+          value={category}
+          onChange={e => setCategory(e.target.value)}
+          size="small"
+        />
+        <TextField
+          label="Location"
+          value={location}
+          onChange={e => setLocation(e.target.value)}
+          size="small"
+        />
+        <TextField
+          label="Min Qty"
+          type="number"
+          value={minQty}
+          onChange={e => setMinQty(e.target.value)}
+          size="small"
+        />
+        <TextField
+          label="Max Qty"
+          type="number"
+          value={maxQty}
+          onChange={e => setMaxQty(e.target.value)}
+          size="small"
+        />
+      </Box>
+
       <div style={{ height: 500, width: '100%' }}>
         <DataGrid
-          rows={components}
+          rows={filteredComponents}
           columns={columns}
           pageSize={10}
           rowsPerPageOptions={[10, 25, 50]}
@@ -112,6 +166,16 @@ const ComponentTable = () => {
                 fullWidth
                 value={selectedRow.location}
                 onChange={(e) => setSelectedRow({ ...selectedRow, location: e.target.value })}
+              />
+              {/* Critical Low Threshold Field */}
+              <TextField
+                margin="dense"
+                label="Critical Low Threshold"
+                fullWidth
+                type="number"
+                value={selectedRow.critical_low || ''}
+                onChange={(e) => setSelectedRow({ ...selectedRow, critical_low: e.target.value })}
+                helperText="Set the critical low quantity for this component"
               />
             </>
           )}

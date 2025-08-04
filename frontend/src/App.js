@@ -8,29 +8,80 @@ import Notifications from './pages/Notifications';
 import Login from './pages/Login';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
+import Register from './pages/Register';
+import { Box } from '@mui/material';
 
-import './App.css';
+// ✅ Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const isAuthenticated = !!localStorage.getItem('token');
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
 
 function App() {
-  const isAuthenticated = localStorage.getItem('token');
+  const isAuthenticated = !!localStorage.getItem('token');
 
   return (
     <Router>
       {isAuthenticated && <Navbar />}
-      <div className="app-container">
+      <Box sx={{ display: 'flex' }}>
         {isAuthenticated && <Sidebar />}
-        <div className="page-content">
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            padding: 3,
+          }}
+        >
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" />} />
+            {/* 🔁 Redirect / based on login */}
+            <Route path="/" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/logs" element={<Logs />} />
-            <Route path="/users" element={<Users />} />
-            <Route path="/notifications" element={<Notifications />} />
+
+            {/* ✅ Protected Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/inventory"
+              element={
+                <ProtectedRoute>
+                  <Inventory />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/logs"
+              element={
+                <ProtectedRoute>
+                  <Logs />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute>
+                  <Users />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <Notifications />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
-        </div>
-      </div>
+        </Box>
+      </Box>
     </Router>
   );
 }
