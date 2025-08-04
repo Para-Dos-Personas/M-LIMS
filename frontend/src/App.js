@@ -1,87 +1,53 @@
+// src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
+import ProtectedLayout from './components/ProtectedLayout';
 import Dashboard from './pages/Dashboard';
 import Inventory from './pages/Inventory';
 import Logs from './pages/Logs';
 import Users from './pages/Users';
 import Notifications from './pages/Notifications';
 import Login from './pages/Login';
-import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
 import Register from './pages/Register';
-import { Box } from '@mui/material';
 
-// ✅ Protected Route Component
+// A simple guard that redirects to /login if no token
 const ProtectedRoute = ({ children }) => {
   const isAuthenticated = !!localStorage.getItem('token');
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 function App() {
-  const isAuthenticated = !!localStorage.getItem('token');
-
   return (
     <Router>
-      {isAuthenticated && <Navbar />}
-      <Box sx={{ display: 'flex' }}>
-        {isAuthenticated && <Sidebar />}
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            padding: 3,
-          }}
-        >
-          <Routes>
-            {/* 🔁 Redirect / based on login */}
-            <Route path="/" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} />} />
-            <Route path="/login" element={<Login />} />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-            {/* ✅ Protected Routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/inventory"
-              element={
-                <ProtectedRoute>
-                  <Inventory />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/logs"
-              element={
-                <ProtectedRoute>
-                  <Logs />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/users"
-              element={
-                <ProtectedRoute>
-                  <Users />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/register" element={<Register />} />
-            <Route
-              path="/notifications"
-              element={
-                <ProtectedRoute>
-                  <Notifications />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </Box>
-      </Box>
+        {/* Protected layout + nested routes */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <ProtectedLayout />
+            </ProtectedRoute>
+          }
+        >
+          {/* Redirect base “/” to /dashboard */}
+          <Route index element={<Navigate to="dashboard" replace />} />
+
+          {/* All child routes now render inside ProtectedLayout’s <Outlet /> */}
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="inventory" element={<Inventory />} />
+          <Route path="logs" element={<Logs />} />
+          <Route path="users" element={<Users />} />
+          <Route path="notifications" element={<Notifications />} />
+        </Route>
+
+        {/* Catch-all: redirect unknown URLs */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
     </Router>
   );
 }
