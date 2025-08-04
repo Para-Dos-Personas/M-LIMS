@@ -102,7 +102,7 @@ To seed these accounts, you can insert directly into the database or use ORM see
 
 ![Dashboard Overview](docs/screenshots/dashboard.png)  
 ![Add Component Form](docs/screenshots/add-component.png)  
-![Component Logs Modal](docs/screenshots/log-modal.gif)  
+![Component Logs Modal](docs/screenshots/log-modal.png)  
 
 > Replace `docs/screenshots/...` with your actual paths or hosted image URLs.
 
