@@ -16,6 +16,7 @@ const userRoutes = require('./routes/userRoutes');
 
 app.use('/api/components', componentRoutes);
 app.use('/api/users', userRoutes);
+app.use('/auth', userRoutes); // ✅ Now frontend calls to /auth/login and /auth/register will work!
 
 // Test route
 app.get("/", (req, res) => {

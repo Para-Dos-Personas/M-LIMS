@@ -1,39 +1,57 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import authService from '../services/authService';
+import authService from '../services/authService'; // Updated to use the new authService
 import {
   Container,
   Paper,
   TextField,
   Button,
   Typography,
-  Box,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 
+/**
+ * The Register component for user registration.
+ */
 const Register = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user'); // default role
+  const [role, setRole] = useState('User');
   const [error, setError] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
+  /**
+   * Handles the form submission for registration.
+   * @param {Event} e - The form submission event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Calling the refactored register function
       await authService.register({ username, password, role });
-      navigate('/login');
+      setSuccessMessage('Registration successful! Redirecting to login...');
+      setOpenSnackbar(true);
+      // Redirect after a short delay for the user to see the success message
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       setError(err.message || 'Registration failed');
     }
   };
 
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
   return (
     <Container maxWidth="xs">
-      <Paper elevation={3} sx={{ p: 3, mt: 8 }}>
+      <Paper elevation={3} sx={{ p: 3, mt: 8, borderRadius: 2 }}>
         <Typography variant="h5" gutterBottom>
           Register
         </Typography>
@@ -66,8 +84,8 @@ const Register = () => {
               label="Role"
               onChange={(e) => setRole(e.target.value)}
             >
-              <MenuItem value="user">User</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="User">User</MenuItem>
+              <MenuItem value="Admin">Admin</MenuItem>
             </Select>
           </FormControl>
           {error && (
@@ -80,12 +98,17 @@ const Register = () => {
             variant="contained"
             color="primary"
             fullWidth
-            sx={{ mt: 2 }}
+            sx={{ mt: 2, borderRadius: 2 }}
           >
             Register
           </Button>
         </form>
       </Paper>
+      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
