@@ -1,1 +1,28 @@
+<<<<<<< HEAD
 node_modules/
+=======
+# Node dependencies
+node_modules/
+
+# Environment files
+.env
+
+# Build artifacts
+build/
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE configs
+.vscode/
+.idea/
+
+# Test/coverage
+coverage/
+>>>>>>> 97c186814bea30df285cc3e61a238f4bc9b7631f
