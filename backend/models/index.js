@@ -17,6 +17,9 @@ const sequelize = config instanceof Sequelize ? config : new Sequelize(
   }
 );
 
+const User = require('./User')(sequelize, Sequelize.DataTypes);
+db.User = User;
+
 fs.readdirSync(__dirname)
   .filter(file => {
     return (
@@ -30,11 +33,12 @@ fs.readdirSync(__dirname)
     db[model.name] = model;
   });
 
-Object.keys(db).forEach(modelName => {
+Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
   }
 });
+
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
