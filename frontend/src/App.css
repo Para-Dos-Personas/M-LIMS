@@ -1,0 +1,24 @@
+
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.page-content {
+  flex-grow: 1;
+  padding: 2rem;
+  background-color: #f5f5f5;
+}
+
+.MuiPaper-root {
+  padding: 1rem;
+}
+
+.MuiTypography-h4 {
+  font-weight: 500;
+}
