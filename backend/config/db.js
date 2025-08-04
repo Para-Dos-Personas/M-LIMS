@@ -1,16 +1,19 @@
-require('dotenv').config();
-console.log('Database password:', process.env.DB_PASSWORD);
 const { Sequelize } = require('sequelize');
+require('dotenv').config();
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,  // This must be a plain string
-  {
-    host: process.env.DB_HOST,
-    dialect: 'postgres',
-    logging: false,
-  }
-);
+const connectionString = `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}` +
+  `@${process.env.DB_HOST}:5432/${process.env.DB_NAME}`;
+
+const sequelize = new Sequelize(connectionString, {
+  dialect: 'postgres',
+  logging: false,
+  dialectOptions: {
+    // Uncomment the below if you ever deploy to a host that requires SSL
+    // ssl: {
+    //   require: true,
+    //   rejectUnauthorized: false,
+    // },
+  },
+});
 
 module.exports = sequelize;
