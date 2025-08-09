@@ -242,9 +242,11 @@ download the file from `backend/db/schema.sql`, then:
    ```bash
    createdb -U postgres lims
    ```
-Run the following command to load the schema:
-
+2. Run the following command to load the schema:
+```
 psql -U postgres -d lims -f backend/db/schema.sql
+```
+
 
 Create `backend/secret.env` from `backend/secret.env.example`:
 
