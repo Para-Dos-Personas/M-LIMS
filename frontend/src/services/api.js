@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // New test code
-  baseURL: 'https://lims-inventory-manager.onrender.com', headers: {
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+  headers: {
     'Content-Type': 'application/json',
   },
 });
