@@ -10,11 +10,11 @@ module.exports = (sequelize, DataTypes) => {
   ComponentLog.associate = models => {
     ComponentLog.belongsTo(models.Component, {
       foreignKey: 'componentId',
-      as: 'component'
+      as: 'Component'
     });
     ComponentLog.belongsTo(models.User, {
       foreignKey: 'userId',
-      as: 'user'
+      as: 'User'
     });
   };
 

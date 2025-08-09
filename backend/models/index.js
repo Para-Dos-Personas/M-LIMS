@@ -3,23 +3,12 @@ const path = require('path');
 const Sequelize = require('sequelize');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/db.js'); // adjust if using config file
+
+// Use the sequelize instance from config
+const sequelize = require('../config/db');
 const db = {};
 
-const sequelize = config instanceof Sequelize ? config : new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  {
-    host: process.env.DB_HOST,
-    dialect: 'postgres',
-    logging: false,
-  }
-);
-
-const User = require('./User')(sequelize, Sequelize.DataTypes);
-db.User = User;
-
+// Load all model files
 fs.readdirSync(__dirname)
   .filter(file => {
     return (
@@ -33,12 +22,12 @@ fs.readdirSync(__dirname)
     db[model.name] = model;
   });
 
+// Set up associations
 Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
   }
 });
-
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

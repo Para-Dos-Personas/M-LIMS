@@ -10,6 +10,8 @@ import Users from './pages/Users';
 import Notifications from './pages/Notifications';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import AddComponent from './pages/AddComponent';
+
 
 // A simple guard that redirects to /login if no token
 const ProtectedRoute = ({ children }) => {
@@ -40,6 +42,7 @@ function App() {
           {/* All child routes now render inside ProtectedLayout’s <Outlet /> */}
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="inventory" element={<Inventory />} />
+          <Route path="add-component" element={<AddComponent />} />
           <Route path="logs" element={<Logs />} />
           <Route path="users" element={<Users />} />
           <Route path="notifications" element={<Notifications />} />

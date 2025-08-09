@@ -9,12 +9,13 @@ import Divider from '@mui/material/Divider';
 
 const Sidebar = () => {
   const location = useLocation();
-  const user = JSON.parse(localStorage.getItem('user'));
-  const isAdmin = user?.role === 'admin';
+  const user = JSON.parse(localStorage.getItem('User'));
+  const isAdmin = user?.role === 'Admin';
 
   const navItems = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Inventory', path: '/inventory' },
+    { label: 'Add Component', path: '/add-component' },
     { label: 'Logs', path: '/logs' },
     ...(isAdmin ? [{ label: 'Users', path: '/users' }] : []),
     { label: 'Notifications', path: '/notifications' },

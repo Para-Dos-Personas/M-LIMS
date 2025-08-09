@@ -75,8 +75,8 @@ const Users = () => {
                       onChange={(e) => handleRoleChange(user.id, e.target.value)}
                       size="small"
                     >
-                      <MenuItem value="user">User</MenuItem>
-                      <MenuItem value="admin">Admin</MenuItem>
+                      <MenuItem value="User">User</MenuItem>
+                      <MenuItem value="Admin">Admin</MenuItem>
                     </Select>
                   </TableCell>
                 </TableRow>

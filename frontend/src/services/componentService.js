@@ -1,6 +1,6 @@
 import api from './api';
 
-const endpoint = '/components';
+const endpoint = '/api/components';
 
 const componentService = {
   getAll: async () => {
@@ -27,6 +27,17 @@ const componentService = {
     const res = await api.delete(`${endpoint}/${id}`);
     return res.data;
   },
+
+  // Log operations
+  addLog: async (componentId, logData) => {
+    const res = await api.post(`${endpoint}/${componentId}/logs`, logData);
+    return res.data;
+  },
+
+  getLogs: async (componentId) => {
+    const res = await api.get(`${endpoint}/${componentId}/logs`);
+    return res.data;
+  }
 };
 
 export default componentService;

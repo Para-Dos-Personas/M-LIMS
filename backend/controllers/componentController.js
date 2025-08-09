@@ -7,6 +7,7 @@ exports.createComponent = async (req, res) => {
     const component = await Component.create(req.body);
     res.status(201).json(component);
   } catch (error) {
+    console.error('Create error:', error);
     res.status(500).json({ error: 'Failed to create component', details: error.message });
   }
 };
@@ -17,6 +18,7 @@ exports.getAllComponents = async (req, res) => {
     const components = await Component.findAll();
     res.json(components);
   } catch (error) {
+    console.error('Fetch all error:', error);
     res.status(500).json({ error: 'Failed to fetch components' });
   }
 };
@@ -28,6 +30,7 @@ exports.getComponentById = async (req, res) => {
     if (!component) return res.status(404).json({ error: 'Component not found' });
     res.json(component);
   } catch (error) {
+    console.error('Fetch by ID error:', error);
     res.status(500).json({ error: 'Failed to fetch component' });
   }
 };
@@ -41,7 +44,8 @@ exports.updateComponent = async (req, res) => {
     await component.update(req.body);
     res.json(component);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update component' });
+    console.error('Update error:', error);
+    res.status(500).json({ error: 'Failed to update component', details: error.message });
   }
 };
 
@@ -54,6 +58,7 @@ exports.deleteComponent = async (req, res) => {
     await component.destroy();
     res.json({ message: 'Component deleted' });
   } catch (error) {
+    console.error('Delete error:', error);
     res.status(500).json({ error: 'Failed to delete component' });
   }
 };
@@ -99,6 +104,7 @@ exports.addLog = async (req, res) => {
 
     res.status(201).json(log);
   } catch (error) {
+    console.error('Add log error:', error);
     res.status(500).json({ error: 'Failed to add log', details: error.message });
   }
 };
@@ -108,10 +114,11 @@ exports.getLogs = async (req, res) => {
   try {
     const logs = await ComponentLog.findAll({
       where: { componentId: req.params.id },
-      include: [{ model: User, as: 'user', attributes: ['username'] }]
+      include: [{ model: User, as: 'User', attributes: ['username'] }]
     });
     res.json(logs);
   } catch (error) {
+    console.error('Fetch logs error:', error);
     res.status(500).json({ error: 'Failed to fetch logs' });
   }
 };

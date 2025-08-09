@@ -25,7 +25,7 @@ const Login = () => {
     try {
       const { token, user } = await authService.login({ username, password });
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('User', JSON.stringify(user));
       setSuccessMessage('Login successful!');
       setOpenSnackbar(true);
       navigate('/dashboard');

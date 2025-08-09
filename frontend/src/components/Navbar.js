@@ -11,12 +11,12 @@ const Navbar = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width:768px)');
 
-  const user = JSON.parse(localStorage.getItem('user'));
-  const isAdmin = user?.role === 'admin';
+  const user = JSON.parse(localStorage.getItem('User'));
+  const isAdmin = user?.role === 'Admin';
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('User');
     navigate('/login');
   };
 

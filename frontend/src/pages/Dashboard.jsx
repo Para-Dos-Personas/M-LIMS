@@ -12,26 +12,73 @@ const Dashboard = () => {
   const [outwardData, setOutwardData] = useState([]);
   const [lowStock, setLowStock] = useState([]);
   const [oldStock, setOldStock] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const [inward, outward, low, old] = await Promise.all([
+        setLoading(true);
+        const [inwardResponse, outwardResponse, low, old] = await Promise.all([
           dashboardService.getInwardStats(),
           dashboardService.getOutwardStats(),
           dashboardService.getLowStock(),
           dashboardService.getOldStock(),
         ]);
-        setInwardData(inward);
-        setOutwardData(outward);
-        setLowStock(low);
-        setOldStock(old);
+
+        // Transform inward data for chart
+        const inwardChartData = inwardResponse.logs ? inwardResponse.logs.map(log => ({
+          component: log.Component?.name || `Component ${log.componentId}`,
+          quantity: log.quantity
+        })) : [];
+
+        // Transform outward data for chart
+        const outwardChartData = outwardResponse.logs ? outwardResponse.logs.map(log => ({
+          component: log.Component?.name || `Component ${log.componentId}`,
+          quantity: log.quantity
+        })) : [];
+
+        setInwardData(inwardChartData);
+        setOutwardData(outwardChartData);
+        setLowStock(Array.isArray(low) ? low : []);
+        setOldStock(Array.isArray(old) ? old : []);
+        setError(null);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
+        setError('Failed to load dashboard data');
+        // Set empty arrays to prevent chart errors
+        setInwardData([]);
+        setOutwardData([]);
+        setLowStock([]);
+        setOldStock([]);
+      } finally {
+        setLoading(false);
       }
     };
     fetchDashboard();
   }, []);
+
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Typography variant="h3" gutterBottom color="primary" fontWeight={700}>
+          Dashboard
+        </Typography>
+        <Typography>Loading dashboard data...</Typography>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Typography variant="h3" gutterBottom color="primary" fontWeight={700}>
+          Dashboard
+        </Typography>
+        <Typography color="error">{error}</Typography>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -54,16 +101,22 @@ const Dashboard = () => {
                 Inwarded Items This Month
               </Typography>
             </Box>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={inwardData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="component" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="quantity" fill="#1976d2" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {inwardData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={inwardData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="component" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="quantity" fill="#1976d2" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <Typography variant="body2" color="text.secondary" align="center">
+                No inward data available for this month
+              </Typography>
+            )}
           </Paper>
         </Grid>
         <Grid item xs={12} md={6}>
@@ -81,16 +134,22 @@ const Dashboard = () => {
                 Outwarded Items This Month
               </Typography>
             </Box>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={outwardData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="component" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="quantity" fill="#ef5350" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {outwardData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={outwardData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="component" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="quantity" fill="#ef5350" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <Typography variant="body2" color="text.secondary" align="center">
+                No outward data available for this month
+              </Typography>
+            )}
           </Paper>
         </Grid>
         <Grid item xs={12} md={6}>
@@ -142,8 +201,8 @@ const Dashboard = () => {
               ) : (
                 oldStock.map((item) => (
                   <li key={item.id}>
-                    <b>{item.name}</b> (No movement since{' '}
-                    {new Date(item.last_outward).toLocaleDateString()})
+                    <b>{item.name}</b> (Added on{' '}
+                    {new Date(item.createdAt).toLocaleDateString()})
                   </li>
                 ))
               )}
