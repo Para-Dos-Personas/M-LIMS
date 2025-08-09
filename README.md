@@ -9,7 +9,7 @@
 [](https://reactjs.org/)
 [](https://www.postgresql.org/)
 
-[Features](https://www.google.com/search?q=%23features) • [Quick Start](https://www.google.com/search?q=%23quick-start) • [Documentation](https://www.google.com/search?q=%23documentation) • [Contributing](https://www.google.com/search?q=%23contributing)
+[Features](#features) • [Quick Start](#quick-start) • [Documentation](#api-documentation) • [Contributing](#contributing)
 
 \</div\>
 
@@ -17,19 +17,19 @@
 
 ## Table of Contents
 
-  - [Overview](https://www.google.com/search?q=%23overview)
-  - [Architecture & Technology Choices](https://www.google.com/search?q=%23architecture--technology-choices)
-  - [Features](https://www.google.com/search?q=%23features)
-  - [Technology Stack](https://www.google.com/search?q=%23technology-stack)
-  - [Quick Start](https://www.google.com/search?q=%23quick-start)
-  - [User Role Access](https://www.google.com/search?q=%23user-role-access)
-  - [Screenshots & Demonstrations](https://www.google.com/search?q=%23screenshots--demonstrations)
-  - [API Documentation](https://www.google.com/search?q=%23api-documentation)
-  - [Database Schema](https://www.google.com/search?q=%23database-schema)
-  - [Known Limitations & Future Improvements](https://www.google.com/search?q=%23known-limitations--future-improvements)
-  - [Deployment](https://www.google.com/search?q=%23deployment)
-  - [Contributing](https://www.google.com/search?q=%23contributing)
-  - [License](https://www.google.com/search?q=%23license)
+  - [Overview](#overview)
+  - [Architecture & Technology Choices](#architecture--technology-choices)
+  - [Features](#features)
+  - [Technology Stack](#technology-stack)
+  - [Quick Start](#quick-start)
+  - [User Role Access](#user-role-access)
+  - [Screenshots & Demonstrations](#screenshots--demonstrations)
+  - [API Documentation](#api-documentation)
+  - [Database Schema](#database-schema)
+  - [Known Limitations & Future Improvements](#known-limitations--future-improvements)
+  - [Deployment](#deployment)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 -----
 
@@ -218,6 +218,7 @@ cd backend
 npm install
 ```
 
+
 ### 3\. Environment Configuration
 
 Create `backend/secret.env` from `backend/secret.env.example`:
@@ -233,6 +234,20 @@ JWT_SECRET=your_super_secret_jwt_key_here_change_this_in_production
 FRONTEND_URL=http://localhost:3000
 NODE_ENV=development
 ```
+### (Optional — Restore from `schema.sql`)
+
+download the file from `backend/db/schema.sql`, then:
+
+1. Make sure PostgreSQL is running and a database exists (e.g., named `lims`):
+   ```bash
+   createdb -U postgres lims
+   ```
+Run the following command to load the schema:
+
+psql -U postgres -d lims -f backend/db/schema.sql
+
+Create `backend/secret.env` from `backend/secret.env.example`:
+
 
 ### 4\. Frontend Setup
 
