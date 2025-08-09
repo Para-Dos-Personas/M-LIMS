@@ -27,5 +27,8 @@
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^7.6.0"
+  },
+  "dependencies": {
+    "sequelize-cli": "^6.6.3"
   }
 }
