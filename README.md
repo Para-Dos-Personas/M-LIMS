@@ -297,7 +297,7 @@ After seeding the database, you can access the application with these credential
 #### Admin Account
 
   - **Username**: `testadmin`
-  - **Password**: `adminrpg`
+  - **Password**: `admin`
   - **Capabilities**: Full system access including user management and manual notification triggers
 
 #### Regular User Account
