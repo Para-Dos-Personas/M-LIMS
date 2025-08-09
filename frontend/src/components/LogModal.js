@@ -34,7 +34,7 @@ const LogModal = ({ open, onClose, componentId, onSuccess }) => {
     setError('');
 
     try {
-      console.log('📝 Submitting log:', {
+      console.log('Submitting log:', {
         componentId,
         changeType: type,
         quantity: qty,

@@ -11,7 +11,7 @@ router.use(authenticateToken);
 // Debug route to check all components and their quantities
 router.get('/debug/components', async (req, res) => {
   try {
-    console.log('🔍 Debug: Fetching all components...');
+    console.log('Debug: Fetching all components...');
     
     const allComponents = await Component.findAll({
       order: [['quantity', 'ASC']]
@@ -38,7 +38,7 @@ router.get('/debug/components', async (req, res) => {
       }))
     };
 
-    console.log('📊 Debug info:', debugInfo);
+    console.log('Debug info:', debugInfo);
     res.json(debugInfo);
   } catch (error) {
     console.error('Debug components error:', error);

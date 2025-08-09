@@ -158,7 +158,7 @@ const AddComponent = () => {
           {isLowStock && (
             <Box sx={{ mt: 1, mb: 2 }}>
               <Chip 
-                label="⚠️ This item will appear as low stock" 
+                label="Warning: This item will appear as low stock" 
                 color="warning" 
                 variant="outlined"
                 size="small"
@@ -183,16 +183,22 @@ const AddComponent = () => {
               value={form.category}
               label="Category"
               onChange={handleChange}
+              required
             >
-              <MenuItem value="Microcontrollers">Microcontrollers</MenuItem>
-              <MenuItem value="Single Board Computers">Single Board Computers</MenuItem>
-              <MenuItem value="LEDs">LEDs</MenuItem>
-              <MenuItem value="Prototyping">Prototyping</MenuItem>
+              <MenuItem value="Resistors">Resistors</MenuItem>
+              <MenuItem value="Capacitors">Capacitors</MenuItem>
+              <MenuItem value="Inductors">Inductors</MenuItem>
+              <MenuItem value="Diodes">Diodes</MenuItem>
+              <MenuItem value="Transistors">Transistors</MenuItem>
+              <MenuItem value="Integrated Circuits (ICs)">Integrated Circuits (ICs)</MenuItem>
               <MenuItem value="Connectors">Connectors</MenuItem>
-              <MenuItem value="Passive">Passive</MenuItem>
-              <MenuItem value="Active">Active</MenuItem>
-              <MenuItem value="Electromechanical">Electromechanical</MenuItem>
-              <MenuItem value="Other">Other</MenuItem>
+              <MenuItem value="Sensors">Sensors</MenuItem>
+              <MenuItem value="Microcontrollers/Development Boards">Microcontrollers/Development Boards</MenuItem>
+              <MenuItem value="Switches/Buttons">Switches/Buttons</MenuItem>
+              <MenuItem value="LEDs/Displays">LEDs/Displays</MenuItem>
+              <MenuItem value="Cables/Wires">Cables/Wires</MenuItem>
+              <MenuItem value="Mechanical Parts/Hardware">Mechanical Parts/Hardware</MenuItem>
+              <MenuItem value="Miscellaneous Lab Supplies">Miscellaneous Lab Supplies</MenuItem>
             </Select>
           </FormControl>
 

@@ -1,0 +1,31 @@
+{
+  "name": "lims-inventory-manager",
+  "version": "1.0.0",
+  "description": "A comprehensive Laboratory Information Management System for efficient inventory tracking and management",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm start",
+    "build": "cd frontend && npm run build",
+    "install-deps": "cd backend && npm install && cd ../frontend && npm install",
+    "heroku-postbuild": "npm run install-deps && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AllenPrabu/LIMS-Inventory-Manager.git"
+  },
+  "keywords": [
+    "inventory",
+    "management",
+    "laboratory",
+    "LIMS",
+    "components",
+    "tracking"
+  ],
+  "author": "Allen Prabu",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+}

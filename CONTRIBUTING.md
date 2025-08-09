@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to LIMS Inventory Manager! This document provides guidelines and information for contributors.
 
-## 🤝 How to Contribute
+## How to Contribute
 
 ### 1. Fork the Repository
 1. Go to [LIMS Inventory Manager](https://github.com/AllenPrabu/LIMS-Inventory-Manager)
@@ -35,7 +35,7 @@ git push origin feature/your-feature-name
 
 Then create a Pull Request on GitHub with a clear description of your changes.
 
-## 📋 Pull Request Guidelines
+## Pull Request Guidelines
 
 ### Before Submitting
 - [ ] Code follows the project's style guidelines
@@ -71,7 +71,7 @@ Add screenshots for UI changes
 - [ ] I have made corresponding changes to documentation
 ```
 
-## 🎨 Coding Standards
+## Coding Standards
 
 ### JavaScript/React
 - Use ES6+ features
@@ -93,7 +93,7 @@ Add screenshots for UI changes
 - Use meaningful variable names
 - Add comments for complex logic
 
-## 🧪 Testing
+## Testing
 
 ### Frontend Testing
 - Test all user interactions
@@ -107,7 +107,7 @@ Add screenshots for UI changes
 - Test error scenarios
 - Ensure data validation works
 
-## 📚 Documentation
+## Documentation
 
 When adding new features:
 - Update the README.md if needed
@@ -115,7 +115,7 @@ When adding new features:
 - Update API documentation
 - Add usage examples
 
-## 🐛 Reporting Bugs
+## Reporting Bugs
 
 ### Bug Report Template
 ```markdown
@@ -143,7 +143,7 @@ What actually happened
 Any other context, screenshots, or logs
 ```
 
-## 🚀 Getting Started for Development
+## Getting Started for Development
 
 1. **Clone the repository**
    ```bash
@@ -177,16 +177,16 @@ Any other context, screenshots, or logs
    cd frontend && npm test
    ```
 
-## 📞 Need Help?
+## Need Help?
 
 - Check existing [Issues](https://github.com/AllenPrabu/LIMS-Inventory-Manager/issues)
 - Create a new issue for bugs or feature requests
 - Join our discussions for questions
 
-## 📄 License
+## License
 
 By contributing to LIMS Inventory Manager, you agree that your contributions will be licensed under the MIT License.
 
 ---
 
-Thank you for contributing to LIMS Inventory Manager! 🎉
+Thank you for contributing to LIMS Inventory Manager!

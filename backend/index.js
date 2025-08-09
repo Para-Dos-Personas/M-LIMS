@@ -3,6 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const sequelize = require("./config/db");
 const { seedSampleData } = require("./utils/seedData");
+const notificationScheduler = require("./utils/notificationScheduler");
 
 dotenv.config();
 const app = express();
@@ -24,12 +25,14 @@ const componentRoutes = require('./routes/componentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const logRoutes = require('./routes/logRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 app.use('/api/components', componentRoutes);
 app.use('/api/users', userRoutes);
 app.use('/auth', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/logs', logRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Test route
 app.get("/", (req, res) => {
@@ -64,17 +67,33 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Sync DB and start server
-const PORT = process.env.PORT || 5000;
-sequelize.sync().then(() => {
+// Initialize database and scheduler
+const initializeApp = async () => {
+  try {
+    await sequelize.sync();
+    console.log('Database connected successfully');
+    
+    // Start notification scheduler only in production
+    if (process.env.NODE_ENV === 'production') {
+      notificationScheduler.start();
+    }
+  } catch (err) {
+    console.error('Database connection failed:', err);
+  }
+};
+
+// Initialize app
+initializeApp();
+
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`Health check: http://localhost:${PORT}/health`);
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Seed data: POST http://localhost:${PORT}/seed`);
-    }
+    console.log(`Seed data: POST http://localhost:${PORT}/seed`);
   });
-}).catch(err => {
-  console.error('Database connection failed:', err);
-  process.exit(1);
-});
+}
+
+// Export for Vercel
+module.exports = app;

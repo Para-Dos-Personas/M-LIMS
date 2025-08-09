@@ -16,6 +16,7 @@ import AddIcon from '@mui/icons-material/Add';
 import HistoryIcon from '@mui/icons-material/History';
 import PeopleIcon from '@mui/icons-material/People';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import NotificationBell from './NotificationBell';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -56,15 +57,30 @@ const Sidebar = () => {
       }}
     >
       {/* Header */}
-      <Box sx={{ p: 3, textAlign: 'center', borderBottom: '1px solid #ce93d8' }}>
-        <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: '#4a148c' }}>
-          LIMS
-        </Typography>
-        <Typography variant="body2" sx={{ color: '#6a1b9a', mt: 1 }}>
-          Inventory Manager
-        </Typography>
+      <Box sx={{ p: 3, borderBottom: '1px solid #ce93d8' }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+          <Box textAlign="center" flex={1}>
+            <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: '#4a148c' }}>
+              LIMS
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#6a1b9a' }}>
+              Inventory Manager
+            </Typography>
+          </Box>
+          <Box sx={{ 
+            bgcolor: '#9c27b0', 
+            borderRadius: '50%', 
+            width: 40, 
+            height: 40, 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center' 
+          }}>
+            <NotificationBell />
+          </Box>
+        </Box>
         {user && (
-          <Typography variant="caption" sx={{ color: '#8e24aa', display: 'block', mt: 1 }}>
+          <Typography variant="caption" sx={{ color: '#8e24aa', display: 'block', textAlign: 'center' }}>
             Welcome, {user.username}
           </Typography>
         )}

@@ -19,7 +19,7 @@ const Dashboard = () => {
     const fetchDashboard = async () => {
       try {
         setLoading(true);
-        console.log('🔄 Fetching dashboard data...');
+        console.log('Fetching dashboard data...');
         
         const [inwardResponse, outwardResponse, low, old] = await Promise.all([
           dashboardService.getInwardStats(),
@@ -28,7 +28,7 @@ const Dashboard = () => {
           dashboardService.getOldStock(),
         ]);
 
-        console.log('📊 Dashboard data received:', {
+        console.log('Dashboard data received:', {
           inward: inwardResponse,
           outward: outwardResponse,
           lowStock: low,

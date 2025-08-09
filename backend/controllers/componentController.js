@@ -71,7 +71,7 @@ exports.addLog = async (req, res) => {
     const parsedQuantity = parseInt(quantity, 10);
     const userId = req.user.id; // Get user ID from authenticated user
 
-    console.log('📝 Adding log:', {
+    console.log('Adding log:', {
       componentId,
       changeType,
       quantity: parsedQuantity,
@@ -98,7 +98,7 @@ exports.addLog = async (req, res) => {
 
     if (newQty < 0) return res.status(400).json({ error: 'Not enough stock' });
 
-    console.log(`📊 Updating quantity: ${component.quantity} → ${newQty}`);
+    console.log(`Updating quantity: ${component.quantity} → ${newQty}`);
 
     component.quantity = newQty;
     await component.save();
@@ -112,11 +112,11 @@ exports.addLog = async (req, res) => {
       componentId: component.id
     });
 
-    console.log('✅ Log created successfully:', log.id);
+    console.log('Log created successfully:', log.id);
 
     res.status(201).json(log);
   } catch (error) {
-    console.error('❌ Add log error:', error);
+    console.error('Add log error:', error);
     res.status(500).json({ error: 'Failed to add log', details: error.message });
   }
 };
