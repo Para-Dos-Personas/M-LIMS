@@ -72,7 +72,7 @@ const initializeApp = async () => {
   try {
     await sequelize.sync();
     console.log('Database connected successfully');
-    
+
     // Start notification scheduler only in production
     if (process.env.NODE_ENV === 'production') {
       notificationScheduler.start();
@@ -85,15 +85,13 @@ const initializeApp = async () => {
 // Initialize app
 initializeApp();
 
-// For local development
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`Health check: http://localhost:${PORT}/health`);
-    console.log(`Seed data: POST http://localhost:${PORT}/seed`);
-  });
-}
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+  console.log(`Health check: http://localhost:${PORT}/health`);
+  console.log(`Seed data: POST http://localhost:${PORT}/seed`);
+});
+
 
 // Export for Vercel
 module.exports = app;
