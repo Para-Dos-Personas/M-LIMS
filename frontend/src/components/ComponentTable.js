@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Box } from '@mui/material';
 import componentService from '../services/componentService';
+import LogModal from './LogModal';
 
 const ComponentTable = () => {
   const [components, setComponents] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [openLogModal, setOpenLogModal] = useState(false);
+  const [selectedComponentId, setSelectedComponentId] = useState(null);
 
   // Search/filter state
   const [search, setSearch] = useState('');
@@ -33,9 +36,19 @@ const ComponentTable = () => {
     setOpenModal(true);
   };
 
+  const handleLogClick = (row) => {
+    setSelectedComponentId(row.id);
+    setOpenLogModal(true);
+  };
+
   const handleModalClose = () => {
     setOpenModal(false);
     setSelectedRow(null);
+  };
+
+  const handleLogModalClose = () => {
+    setOpenLogModal(false);
+    setSelectedComponentId(null);
   };
 
   const handleSave = async () => {
@@ -46,6 +59,10 @@ const ComponentTable = () => {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleLogSuccess = () => {
+    fetchComponents(); // Refresh the component list after logging
   };
 
   // Filtering logic
@@ -70,11 +87,25 @@ const ComponentTable = () => {
       field: 'actions',
       headerName: 'Actions',
       renderCell: (params) => (
-        <Button variant="outlined" onClick={() => handleEditClick(params.row)}>
-          Edit
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button 
+            variant="outlined" 
+            size="small"
+            onClick={() => handleEditClick(params.row)}
+          >
+            Edit
+          </Button>
+          <Button 
+            variant="contained" 
+            color="secondary"
+            size="small"
+            onClick={() => handleLogClick(params.row)}
+          >
+            Log Movement
+          </Button>
+        </Box>
       ),
-      width: 120,
+      width: 200,
       sortable: false,
     },
   ];
@@ -126,6 +157,7 @@ const ComponentTable = () => {
         />
       </div>
 
+      {/* Edit Component Modal */}
       <Dialog open={openModal} onClose={handleModalClose}>
         <DialogTitle>Edit Component</DialogTitle>
         <DialogContent>
@@ -185,6 +217,14 @@ const ComponentTable = () => {
           <Button onClick={handleSave} variant="contained">Save</Button>
         </DialogActions>
       </Dialog>
+
+      {/* Log Movement Modal */}
+      <LogModal
+        open={openLogModal}
+        onClose={handleLogModalClose}
+        componentId={selectedComponentId}
+        onSuccess={handleLogSuccess}
+      />
     </>
   );
 };

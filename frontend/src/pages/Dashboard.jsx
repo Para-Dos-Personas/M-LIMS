@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Grid, Paper, Box } from '@mui/material';
+import { Container, Typography, Grid, Paper, Box, Chip, Alert } from '@mui/material';
 import dashboardService from '../services/dashboardService';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import InventoryIcon from '@mui/icons-material/Inventory';
@@ -19,12 +19,21 @@ const Dashboard = () => {
     const fetchDashboard = async () => {
       try {
         setLoading(true);
+        console.log('🔄 Fetching dashboard data...');
+        
         const [inwardResponse, outwardResponse, low, old] = await Promise.all([
           dashboardService.getInwardStats(),
           dashboardService.getOutwardStats(),
           dashboardService.getLowStock(),
           dashboardService.getOldStock(),
         ]);
+
+        console.log('📊 Dashboard data received:', {
+          inward: inwardResponse,
+          outward: outwardResponse,
+          lowStock: low,
+          oldStock: old
+        });
 
         // Transform inward data for chart
         const inwardChartData = inwardResponse.logs ? inwardResponse.logs.map(log => ({
@@ -43,8 +52,10 @@ const Dashboard = () => {
         setLowStock(Array.isArray(low) ? low : []);
         setOldStock(Array.isArray(old) ? old : []);
         setError(null);
+        
+        console.log('✅ Dashboard data processed successfully');
       } catch (err) {
-        console.error('Error fetching dashboard data:', err);
+        console.error('❌ Error fetching dashboard data:', err);
         setError('Failed to load dashboard data');
         // Set empty arrays to prevent chart errors
         setInwardData([]);
@@ -57,6 +68,24 @@ const Dashboard = () => {
     };
     fetchDashboard();
   }, []);
+
+  const getLowStockSeverity = (quantity, threshold) => {
+    if (quantity === 0) return 'error';
+    if (quantity <= Math.min(3, threshold * 0.3)) return 'warning';
+    return 'info';
+  };
+
+  const getLowStockColor = (quantity, threshold) => {
+    if (quantity === 0) return '#d32f2f';
+    if (quantity <= Math.min(3, threshold * 0.3)) return '#ed6c02';
+    return '#1976d2';
+  };
+
+  const getLowStockLabel = (quantity, threshold) => {
+    if (quantity === 0) return 'CRITICAL';
+    if (quantity <= Math.min(3, threshold * 0.3)) return 'WARNING';
+    return 'LOW';
+  };
 
   if (loading) {
     return (
@@ -75,7 +104,7 @@ const Dashboard = () => {
         <Typography variant="h3" gutterBottom color="primary" fontWeight={700}>
           Dashboard
         </Typography>
-        <Typography color="error">{error}</Typography>
+        <Alert severity="error">{error}</Alert>
       </Container>
     );
   }
@@ -164,20 +193,44 @@ const Dashboard = () => {
             <Box display="flex" alignItems="center" mb={2}>
               <WarningIcon color="warning" sx={{ mr: 1 }} />
               <Typography variant="h6" color="warning.dark">
-                Critical Low Stock
+                Critical Low Stock ({lowStock.length} items)
               </Typography>
             </Box>
-            <ul>
-              {lowStock.length === 0 ? (
-                <li>No critical items.</li>
-              ) : (
-                lowStock.map((item) => (
-                  <li key={item.id}>
-                    <b>{item.name}</b> ({item.quantity} left)
-                  </li>
-                ))
-              )}
-            </ul>
+            {lowStock.length === 0 ? (
+              <Box textAlign="center" py={2}>
+                <Typography variant="body2" color="text.secondary">
+                  No critical items found.
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Items with quantity ≤ their critical threshold are considered low stock.
+                </Typography>
+              </Box>
+            ) : (
+              <Box>
+                {lowStock.map((item) => (
+                  <Box key={item.id} sx={{ mb: 2, p: 2, bgcolor: 'rgba(255,255,255,0.7)', borderRadius: 2 }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                      <Typography variant="body1" fontWeight="medium">
+                        {item.name}
+                      </Typography>
+                      <Chip 
+                        label={`${item.quantity}/${item.criticalThreshold} - ${getLowStockLabel(item.quantity, item.criticalThreshold)}`}
+                        color={getLowStockSeverity(item.quantity, item.criticalThreshold)}
+                        size="small"
+                        sx={{ 
+                          bgcolor: getLowStockColor(item.quantity, item.criticalThreshold),
+                          color: 'white',
+                          fontWeight: 'bold'
+                        }}
+                      />
+                    </Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Location: {item.location} | Part: {item.partNumber}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Paper>
         </Grid>
         <Grid item xs={12} md={6}>
@@ -192,21 +245,33 @@ const Dashboard = () => {
             <Box display="flex" alignItems="center" mb={2}>
               <HistoryIcon color="secondary" sx={{ mr: 1 }} />
               <Typography variant="h6" color="secondary.dark">
-                Old Stock Items
+                Old Stock Items ({oldStock.length} items)
               </Typography>
             </Box>
-            <ul>
-              {oldStock.length === 0 ? (
-                <li>No old stock items.</li>
-              ) : (
-                oldStock.map((item) => (
-                  <li key={item.id}>
-                    <b>{item.name}</b> (Added on{' '}
-                    {new Date(item.createdAt).toLocaleDateString()})
-                  </li>
-                ))
-              )}
-            </ul>
+            {oldStock.length === 0 ? (
+              <Box textAlign="center" py={2}>
+                <Typography variant="body2" color="text.secondary">
+                  No old stock items found.
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Items older than 6 months are considered old stock.
+                </Typography>
+              </Box>
+            ) : (
+              <Box>
+                {oldStock.map((item) => (
+                  <Box key={item.id} sx={{ mb: 2, p: 2, bgcolor: 'rgba(255,255,255,0.7)', borderRadius: 2 }}>
+                    <Typography variant="body1" fontWeight="medium" mb={1}>
+                      {item.name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Added: {new Date(item.createdAt).toLocaleDateString()} | 
+                      Qty: {item.quantity} | Location: {item.location}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Paper>
         </Grid>
       </Grid>

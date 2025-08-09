@@ -10,6 +10,11 @@ module.exports = (sequelize, DataTypes) => {
     unitPrice: DataTypes.FLOAT,
     datasheetLink: DataTypes.STRING,
     category: DataTypes.STRING,
+    criticalThreshold: {
+      type: DataTypes.INTEGER,
+      defaultValue: 10,
+      allowNull: false
+    }
   });
 
   Component.associate = models => {

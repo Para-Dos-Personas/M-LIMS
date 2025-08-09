@@ -12,6 +12,8 @@ import {
   Button,
   Snackbar,
   Alert,
+  Box,
+  Chip,
 } from '@mui/material';
 import componentService from '../services/componentService';
 
@@ -27,6 +29,7 @@ const AddComponent = () => {
     unitPrice: '',
     datasheetLink: '',
     category: '',
+    criticalThreshold: '10',
   });
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -44,6 +47,7 @@ const AddComponent = () => {
         ...form,
         quantity: parseInt(form.quantity, 10),
         unitPrice: parseFloat(form.unitPrice),
+        criticalThreshold: parseInt(form.criticalThreshold, 10),
       };
 
       await componentService.create(payload);
@@ -53,6 +57,10 @@ const AddComponent = () => {
       setError(err.message || 'Failed to add component');
     }
   };
+
+  // Calculate if current quantity would be low stock
+  const isLowStock = form.quantity && form.criticalThreshold && 
+    parseInt(form.quantity) <= parseInt(form.criticalThreshold);
 
   return (
     <Container maxWidth="sm">
@@ -136,6 +144,29 @@ const AddComponent = () => {
           />
 
           <TextField
+            label="Critical Threshold"
+            name="criticalThreshold"
+            type="number"
+            value={form.criticalThreshold}
+            onChange={handleChange}
+            required
+            fullWidth
+            margin="normal"
+            helperText="Quantity at which this item is considered low stock"
+          />
+
+          {isLowStock && (
+            <Box sx={{ mt: 1, mb: 2 }}>
+              <Chip 
+                label="⚠️ This item will appear as low stock" 
+                color="warning" 
+                variant="outlined"
+                size="small"
+              />
+            </Box>
+          )}
+
+          <TextField
             label="Datasheet Link"
             name="datasheetLink"
             value={form.datasheetLink}
@@ -153,6 +184,11 @@ const AddComponent = () => {
               label="Category"
               onChange={handleChange}
             >
+              <MenuItem value="Microcontrollers">Microcontrollers</MenuItem>
+              <MenuItem value="Single Board Computers">Single Board Computers</MenuItem>
+              <MenuItem value="LEDs">LEDs</MenuItem>
+              <MenuItem value="Prototyping">Prototyping</MenuItem>
+              <MenuItem value="Connectors">Connectors</MenuItem>
               <MenuItem value="Passive">Passive</MenuItem>
               <MenuItem value="Active">Active</MenuItem>
               <MenuItem value="Electromechanical">Electromechanical</MenuItem>

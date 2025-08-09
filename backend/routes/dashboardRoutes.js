@@ -3,9 +3,48 @@ const router = express.Router();
 const { Component, ComponentLog } = require('../models');
 const { authenticateToken } = require('../middleware/auth');
 const { Op } = require('sequelize');
+const sequelize = require('../config/db');
 
 // Apply authentication to all dashboard routes
 router.use(authenticateToken);
+
+// Debug route to check all components and their quantities
+router.get('/debug/components', async (req, res) => {
+  try {
+    console.log('🔍 Debug: Fetching all components...');
+    
+    const allComponents = await Component.findAll({
+      order: [['quantity', 'ASC']]
+    });
+
+    const lowStockComponents = allComponents.filter(c => c.quantity <= c.criticalThreshold);
+    
+    const debugInfo = {
+      totalComponents: allComponents.length,
+      lowStockComponents: lowStockComponents.length,
+      allComponents: allComponents.map(c => ({
+        id: c.id,
+        name: c.name,
+        quantity: c.quantity,
+        criticalThreshold: c.criticalThreshold,
+        location: c.location
+      })),
+      lowStockItems: lowStockComponents.map(c => ({
+        id: c.id,
+        name: c.name,
+        quantity: c.quantity,
+        criticalThreshold: c.criticalThreshold,
+        location: c.location
+      }))
+    };
+
+    console.log('📊 Debug info:', debugInfo);
+    res.json(debugInfo);
+  } catch (error) {
+    console.error('Debug components error:', error);
+    res.status(500).json({ error: 'Failed to fetch debug info', details: error.message });
+  }
+});
 
 // Get inward statistics for a specific month
 router.get('/inward', async (req, res) => {
@@ -95,21 +134,23 @@ router.get('/outward', async (req, res) => {
   }
 });
 
-// Get low stock components (quantity <= 10)
+// Get low stock components (quantity <= criticalThreshold)
 router.get('/low-stock', async (req, res) => {
   try {
     console.log('Dashboard low stock request');
     
+    // Use Sequelize literal to compare quantity with criticalThreshold
     const lowStockComponents = await Component.findAll({
       where: {
         quantity: {
-          [Op.lte]: 10
+          [Op.lte]: sequelize.col('criticalThreshold')
         }
       },
       order: [['quantity', 'ASC']]
     });
 
     console.log('Found low stock components:', lowStockComponents.length);
+    console.log('Low stock items:', lowStockComponents.map(c => `${c.name}: ${c.quantity}/${c.criticalThreshold}`));
     res.json(lowStockComponents);
   } catch (error) {
     console.error('Dashboard low stock error:', error);

@@ -66,16 +66,24 @@ exports.deleteComponent = async (req, res) => {
 // Add a component log (inward/outward)
 exports.addLog = async (req, res) => {
   try {
-    const { changeType, quantity, reason, project, userId } = req.body;
+    const { changeType, quantity, reason, project } = req.body;
     const componentId = parseInt(req.params.id, 10);
     const parsedQuantity = parseInt(quantity, 10);
-    const parsedUserId = parseInt(userId, 10);
+    const userId = req.user.id; // Get user ID from authenticated user
+
+    console.log('📝 Adding log:', {
+      componentId,
+      changeType,
+      quantity: parsedQuantity,
+      reason,
+      project,
+      userId
+    });
 
     // Basic validation
     if (
       Number.isNaN(componentId) ||
       Number.isNaN(parsedQuantity) ||
-      Number.isNaN(parsedUserId) ||
       !['inward', 'outward'].includes(changeType)
     ) {
       return res.status(400).json({ error: 'Invalid input data' });
@@ -90,6 +98,8 @@ exports.addLog = async (req, res) => {
 
     if (newQty < 0) return res.status(400).json({ error: 'Not enough stock' });
 
+    console.log(`📊 Updating quantity: ${component.quantity} → ${newQty}`);
+
     component.quantity = newQty;
     await component.save();
 
@@ -98,13 +108,15 @@ exports.addLog = async (req, res) => {
       quantity: parsedQuantity,
       reason,
       project,
-      userId: parsedUserId,
+      userId: userId,
       componentId: component.id
     });
 
+    console.log('✅ Log created successfully:', log.id);
+
     res.status(201).json(log);
   } catch (error) {
-    console.error('Add log error:', error);
+    console.error('❌ Add log error:', error);
     res.status(500).json({ error: 'Failed to add log', details: error.message });
   }
 };

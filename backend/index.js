@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const sequelize = require("./config/db");
+const { seedSampleData } = require("./utils/seedData");
 
 dotenv.config();
 const app = express();
@@ -22,11 +23,13 @@ app.use(express.urlencoded({ extended: true }));
 const componentRoutes = require('./routes/componentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const logRoutes = require('./routes/logRoutes');
 
 app.use('/api/components', componentRoutes);
 app.use('/api/users', userRoutes);
 app.use('/auth', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/logs', logRoutes);
 
 // Test route
 app.get("/", (req, res) => {
@@ -37,6 +40,18 @@ app.get("/", (req, res) => {
 app.get("/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
+
+// Development route to seed sample data
+if (process.env.NODE_ENV === 'development') {
+  app.post("/seed", async (req, res) => {
+    try {
+      await seedSampleData();
+      res.json({ message: "Sample data seeded successfully!" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to seed data", details: error.message });
+    }
+  });
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -55,6 +70,9 @@ sequelize.sync().then(() => {
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`Health check: http://localhost:${PORT}/health`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Seed data: POST http://localhost:${PORT}/seed`);
+    }
   });
 }).catch(err => {
   console.error('Database connection failed:', err);
