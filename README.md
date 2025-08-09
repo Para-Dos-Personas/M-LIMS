@@ -376,31 +376,31 @@ After seeding the database, you can access the application with these credential
 
 #### Dashboard Overview
 
-\<img src="[https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Dashboard.gif](https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Dashboard.gif)" alt="Dashboard Demo" width="800"/\>
+<img src="https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Dashboard.gif" alt="Dashboard Demo" width="800"/>
 
 *Interactive dashboard showing inventory statistics, low stock alerts, and monthly movement charts with real-time data*
 
 #### Inventory Management
 
-\<img src="[https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Inventory.gif](https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Inventory.gif)" alt="Inventory Demo" width="800"/\>
+<img src="https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Inventory.gif" alt="Inventory Demo" width="800"/>
 
 *Complete inventory view with search, filter, and component management capabilities*
 
 #### Transaction Logging
 
-\<img src="[https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Logs.gif](https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Logs.gif)" alt="Logs Demo" width="800"/\>
+<img src="https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Logs.gif" alt="Logs Demo" width="800"/>
 
 *Comprehensive logging system showing all inward and outward stock movements with detailed audit trails*
 
 #### Notification System
 
-\<img src="[https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Notification.gif](https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Notification.gif)" alt="Notification Demo" width="800"/\>
+<img src="https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Notification.gif" alt="Notification Demo" width="800"/>
 
 *Real-time notification center displaying low stock and old stock alerts with management options*
 
 #### User Management
 
-\<img src="[https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Users.gif](https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Users.gif)" alt="Users Demo" width="800"/\>
+<img src="https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Users.gif" alt="Users Demo" width="800"/>
 
 *Administrative user management interface with role assignment and user creation capabilities*
 
