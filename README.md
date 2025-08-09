@@ -321,24 +321,29 @@ After seeding the database, you can access the application with these credential
 ### Application Screenshots
 
 #### Dashboard Overview
-![Dashboard Gif](docs/screenshots/Dashboard.gif)
-*The main dashboard showing inventory statistics, low stock alerts, and monthly movement charts*
+<img src="https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Dashboard.gif" alt="Dashboard Demo" width="800"/>
 
-#### Component Management
-![Inventory Gif](docs/screenshots/Inventory.gif)
-*Page to show all registered components with quantity and other information in inventory*
+*Interactive dashboard showing inventory statistics, low stock alerts, and monthly movement charts with real-time data*
+
+#### Inventory Management
+<img src="https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Inventory.gif" alt="Inventory Demo" width="800"/>
+
+*Complete inventory view with search, filter, and component management capabilities*
 
 #### Transaction Logging
-![Log Modal Gif](docs/screenshots/Logs.gif)
-*Log Movement modal for recording inward and outward stock transactions*
+<img src="https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Logs.gif" alt="Logs Demo" width="800"/>
 
-#### Notification Logging
-![Notification Gif](docs/screenshots/Notification.gif)
-*Notification page to display all critical information*
+*Comprehensive logging system showing all inward and outward stock movements with detailed audit trails*
 
-#### Users
-![Users Gif](docs/screenshots/Users.gif)
-*Displays information about all registered Users in database with ability to remove/edit.*
+#### Notification System
+<img src="https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Notification.gif" alt="Notification Demo" width="800"/>
+
+*Real-time notification center displaying low stock and old stock alerts with management options*
+
+#### User Management
+<img src="https://raw.githubusercontent.com/AllenPrabu/LIMS-Inventory-Manager/main/docs/screenshots/Users.gif" alt="Users Demo" width="800"/>
+
+*Administrative user management interface with role assignment and user creation capabilities*
 
 
 ### Key Functionality Demonstrations
