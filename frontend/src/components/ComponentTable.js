@@ -10,6 +10,7 @@ const ComponentTable = () => {
   const [openModal, setOpenModal] = useState(false);
   const [openLogModal, setOpenLogModal] = useState(false);
   const [selectedComponentId, setSelectedComponentId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Search/filter state
   const [search, setSearch] = useState('');
@@ -24,6 +25,21 @@ const ComponentTable = () => {
       setComponents(data);
     } catch (err) {
       console.error(err);
+    }
+  };
+  const handleDelete = async () => {
+    if (!selectedRow) return;
+    if (!window.confirm(`Are you sure you want to delete "${selectedRow.name}"?`)) return;
+    setDeleting(true);
+    try {
+      await componentService.delete(selectedRow.id);
+      fetchComponents();
+      handleModalClose();
+    } catch (err) {
+      alert('Failed to delete component.');
+      console.error(err);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -203,6 +219,15 @@ const ComponentTable = () => {
                 value={selectedRow.location}
                 onChange={(e) => setSelectedRow({ ...selectedRow, location: e.target.value })}
               />
+              <TextField
+                margin="dense"
+                label="Critical Low Threshold"
+                fullWidth
+                type="number"
+                value={selectedRow.criticalThreshold ?? ''}
+                onChange={(e) => setSelectedRow({ ...selectedRow, criticalThreshold: e.target.value })}
+                helperText="Set the critical low quantity for this component"
+              />
               {/* Critical Low Threshold Field */}
               <TextField
                 margin="dense"
@@ -219,6 +244,14 @@ const ComponentTable = () => {
         <DialogActions>
           <Button onClick={handleModalClose}>Cancel</Button>
           <Button onClick={handleSave} variant="contained">Save</Button>
+          <Button
+            onClick={handleDelete}
+            color="error"
+            variant="outlined"
+            disabled={deleting}
+          >
+            {deleting ? 'Deleting...' : 'Delete'}
+          </Button>
         </DialogActions>
       </Dialog>
 
