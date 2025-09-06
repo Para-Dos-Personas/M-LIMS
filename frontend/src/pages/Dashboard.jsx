@@ -15,6 +15,32 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Helper function to process and group chart data
+  const processChartData = (logs) => {
+    if (!logs || !Array.isArray(logs)) return [];
+
+    // Group by component name and sum quantities
+    const groupedData = logs.reduce((acc, log) => {
+      const componentName = log.Component?.name || `Component ${log.componentId}`;
+
+      if (acc[componentName]) {
+        acc[componentName] += log.quantity;
+      } else {
+        acc[componentName] = log.quantity;
+      }
+
+      return acc;
+    }, {});
+
+    // Convert to array and sort alphabetically
+    return Object.entries(groupedData)
+      .map(([component, quantity]) => ({
+        component,
+        quantity
+      }))
+      .sort((a, b) => a.component.localeCompare(b.component));
+  };
+
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
@@ -25,14 +51,10 @@ const Dashboard = () => {
           dashboardService.getLowStock(),
           dashboardService.getOldStock(),
         ]);
-        const inwardChartData = inwardResponse.logs ? inwardResponse.logs.map(log => ({
-          component: log.Component?.name || `Component ${log.componentId}`,
-          quantity: log.quantity
-        })) : [];
-        const outwardChartData = outwardResponse.logs ? outwardResponse.logs.map(log => ({
-          component: log.Component?.name || `Component ${log.componentId}`,
-          quantity: log.quantity
-        })) : [];
+
+        // Process chart data with grouping and sorting
+        const inwardChartData = processChartData(inwardResponse.logs);
+        const outwardChartData = processChartData(outwardResponse.logs);
 
         setInwardData(inwardChartData);
         setOutwardData(outwardChartData);
@@ -88,6 +110,13 @@ const Dashboard = () => {
     '& .recharts-bar': {
       filter: 'none !important',
     }
+  };
+  const scrollableChartBox = {
+    width: '100%',
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': { display: 'none' }
   };
 
   if (loading) {
@@ -150,22 +179,33 @@ const Dashboard = () => {
               </Typography>
             </Box>
             {inwardData.length > 0 ? (
-              <Box sx={chartStyles}>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={inwardData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="component" />
-                    <YAxis />
-                    <Tooltip cursor={{ fill: 'transparent' }} />
-                    <Legend />
-                    <Bar
-                      dataKey="quantity"
-                      fill="#1976d2"
-                      radius={[8, 8, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
+              inwardData.length > 9 ? (
+                <Box sx={scrollableChartBox}>
+                  <Box sx={{ minWidth: `${inwardData.length * 80}px`, height: 250 }}>
+                    <BarChart width={inwardData.length * 80} height={250} data={inwardData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="component" angle={-30} textAnchor="end" interval={0} height={60} />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip cursor={false} />
+                      <Legend />
+                      <Bar dataKey="quantity" fill="#1976d2" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </Box>
+                </Box>
+              ) : (
+                <Box sx={chartStyles}>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={inwardData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="component" angle={-30} textAnchor="end" interval={0} height={60} />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="quantity" fill="#1976d2" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Box>
+              )
             ) : (
               <Typography variant="body2" color="text.secondary" align="center">
                 No inward data available for this month
@@ -184,22 +224,33 @@ const Dashboard = () => {
               </Typography>
             </Box>
             {outwardData.length > 0 ? (
-              <Box sx={chartStyles}>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={outwardData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="component" />
-                    <YAxis />
-                    <Tooltip cursor={{ fill: 'transparent' }} />
-                    <Legend />
-                    <Bar
-                      dataKey="quantity"
-                      fill="#ef5350"
-                      radius={[8, 8, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
+              outwardData.length > 9 ? (
+                <Box sx={scrollableChartBox}>
+                  <Box sx={{ minWidth: `${outwardData.length * 80}px`, height: 250 }}>
+                    <BarChart width={outwardData.length * 80} height={250} data={outwardData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="component" angle={-30} textAnchor="end" interval={0} height={60} />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip cursor ={false} />
+                      <Legend />
+                      <Bar dataKey="quantity" fill="#ef5350" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </Box>
+                </Box>
+              ) : (
+                <Box sx={chartStyles}>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={outwardData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="component" angle={-30} textAnchor="end" interval={0} height={60} />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="quantity" fill="#ef5350" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Box>
+              )
             ) : (
               <Typography variant="body2" color="text.secondary" align="center">
                 No outward data available for this month

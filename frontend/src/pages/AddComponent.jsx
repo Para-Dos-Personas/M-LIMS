@@ -59,7 +59,7 @@ const AddComponent = () => {
   };
 
   // Calculate if current quantity would be low stock
-  const isLowStock = form.quantity && form.criticalThreshold && 
+  const isLowStock = form.quantity && form.criticalThreshold &&
     parseInt(form.quantity) <= parseInt(form.criticalThreshold);
 
   return (
@@ -157,9 +157,9 @@ const AddComponent = () => {
 
           {isLowStock && (
             <Box sx={{ mt: 1, mb: 2 }}>
-              <Chip 
-                label="Warning: This item will appear as low stock" 
-                color="warning" 
+              <Chip
+                label="Warning: This item will appear as low stock"
+                color="warning"
                 variant="outlined"
                 size="small"
               />
@@ -185,19 +185,19 @@ const AddComponent = () => {
               onChange={handleChange}
               required
             >
-              <MenuItem value="Resistors">Resistors</MenuItem>
-              <MenuItem value="Capacitors">Capacitors</MenuItem>
-              <MenuItem value="Inductors">Inductors</MenuItem>
-              <MenuItem value="Diodes">Diodes</MenuItem>
-              <MenuItem value="Transistors">Transistors</MenuItem>
-              <MenuItem value="Integrated Circuits (ICs)">Integrated Circuits (ICs)</MenuItem>
-              <MenuItem value="Connectors">Connectors</MenuItem>
-              <MenuItem value="Sensors">Sensors</MenuItem>
-              <MenuItem value="Microcontrollers/Development Boards">Microcontrollers/Development Boards</MenuItem>
-              <MenuItem value="Switches/Buttons">Switches/Buttons</MenuItem>
-              <MenuItem value="LEDs/Displays">LEDs/Displays</MenuItem>
-              <MenuItem value="Cables/Wires">Cables/Wires</MenuItem>
-              <MenuItem value="Mechanical Parts/Hardware">Mechanical Parts/Hardware</MenuItem>
+              <MenuItem value="Tablets">Tablets</MenuItem>
+              <MenuItem value="Capsules">Capsules</MenuItem>
+              <MenuItem value="Powder and Granules">Powder and Granules</MenuItem>
+              <MenuItem value="Suppositories">Suppositories</MenuItem>
+              <MenuItem value="Syrup and Elixirs">Syrup and Elixirs</MenuItem>
+              <MenuItem value="Solutions and Suspensions">Solutions and Suspensions</MenuItem>
+              <MenuItem value="Injections">Injections</MenuItem>
+              <MenuItem value="Spray">Spray</MenuItem>
+              <MenuItem value="Creams and Ointments">Creams and Ointments</MenuItem>
+              <MenuItem value="Gel and Pastes">Gel and Pastes</MenuItem>
+              <MenuItem value="Inhalers">Inhalers</MenuItem>
+              <MenuItem value="Nebulizers">Nebulizers</MenuItem>
+              <MenuItem value="Equipments">Equipments</MenuItem>
               <MenuItem value="Miscellaneous Lab Supplies">Miscellaneous Lab Supplies</MenuItem>
             </Select>
           </FormControl>
