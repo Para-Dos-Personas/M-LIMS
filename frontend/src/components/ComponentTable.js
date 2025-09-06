@@ -68,7 +68,7 @@ const ComponentTable = () => {
   // Filtering logic
   const filteredComponents = components.filter((c) =>
     (c.name?.toLowerCase().includes(search.toLowerCase()) ||
-      c.part_number?.toLowerCase().includes(search.toLowerCase())) &&
+      c.partNumber?.toLowerCase().includes(search.toLowerCase())) &&
     (category ? c.category?.toLowerCase().includes(category.toLowerCase()) : true) &&
     (location ? c.location?.toLowerCase().includes(location.toLowerCase()) : true) &&
     (minQty ? Number(c.quantity) >= Number(minQty) : true) &&
@@ -78,25 +78,29 @@ const ComponentTable = () => {
   const columns = [
     { field: 'id', headerName: 'ID', width: 70 },
     { field: 'name', headerName: 'Name', flex: 1 },
-    { field: 'part_number', headerName: 'Part No.', flex: 1 },
+    { field: 'partNumber', headerName: 'Part No.', flex: 1 },
     { field: 'category', headerName: 'Category', flex: 1 },
     { field: 'quantity', headerName: 'Qty', width: 100 },
     { field: 'location', headerName: 'Location', flex: 1 },
-    { field: 'critical_low', headerName: 'Critical Low', width: 120 }, // Show threshold
+    {
+      field: 'criticalThreshold',
+      headerName: 'Critical Low',
+      width: 120,
+    },
     {
       field: 'actions',
       headerName: 'Actions',
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             size="small"
             onClick={() => handleEditClick(params.row)}
           >
             Edit
           </Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             color="secondary"
             size="small"
             onClick={() => handleLogClick(params.row)}
@@ -174,8 +178,8 @@ const ComponentTable = () => {
                 margin="dense"
                 label="Part Number"
                 fullWidth
-                value={selectedRow.part_number}
-                onChange={(e) => setSelectedRow({ ...selectedRow, part_number: e.target.value })}
+                value={selectedRow.partNumber}
+                onChange={(e) => setSelectedRow({ ...selectedRow, partNumber: e.target.value })}
               />
               <TextField
                 margin="dense"
@@ -205,8 +209,8 @@ const ComponentTable = () => {
                 label="Critical Low Threshold"
                 fullWidth
                 type="number"
-                value={selectedRow.critical_low || ''}
-                onChange={(e) => setSelectedRow({ ...selectedRow, critical_low: e.target.value })}
+                value={selectedRow.criticalThreshold ?? selectedRow.critical_low ?? ''}
+                onChange={(e) => setSelectedRow({ ...selectedRow, criticalThreshold: e.target.value })}
                 helperText="Set the critical low quantity for this component"
               />
             </>
