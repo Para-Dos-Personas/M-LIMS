@@ -231,7 +231,7 @@ const Dashboard = () => {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="component" angle={-30} textAnchor="end" interval={0} height={60} />
                       <YAxis allowDecimals={false} />
-                      <Tooltip cursor ={false} />
+                      <Tooltip cursor={false} />
                       <Legend />
                       <Bar dataKey="quantity" fill="#ef5350" radius={[8, 8, 0, 0]} />
                     </BarChart>
@@ -244,7 +244,7 @@ const Dashboard = () => {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="component" angle={-30} textAnchor="end" interval={0} height={60} />
                       <YAxis allowDecimals={false} />
-                      <Tooltip />
+                      <Tooltip cursor={false} />
                       <Legend />
                       <Bar dataKey="quantity" fill="#ef5350" radius={[8, 8, 0, 0]} />
                     </BarChart>
