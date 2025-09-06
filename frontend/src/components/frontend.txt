@@ -1,0 +1,46 @@
+frontend
+├── .env
+├── .gitkeep
+├── package-lock.json
+├── package.json
+├── public
+│   └── index.html
+├── src
+│   ├── App.css
+│   ├── App.js
+│   ├── components
+│   │   ├── ChartCard.js
+│   │   ├── ComponentTable.js
+│   │   ├── EditComponent.jsx
+│   │   ├── LogModal.js
+│   │   ├── LowStockCard.js
+│   │   ├── NotificationBell.js
+│   │   ├── OldStockCard.js
+│   │   ├── ProtectedLayout.jsx
+│   │   ├── ProtectedRoute.js
+│   │   └── Sidebar.js
+│   ├── contexts
+│   │   └── NotificationContext.js
+│   ├── index.js
+│   ├── pages
+│   │   ├── AddComponent.jsx
+│   │   ├── Dashboard.jsx
+│   │   ├── EditPage.jsx
+│   │   ├── Inventory.jsx
+│   │   ├── Login.jsx
+│   │   ├── Logs.jsx
+│   │   ├── Notifications.jsx
+│   │   ├── Register.jsx
+│   │   ├── temp
+│   │   └── Users.jsx
+│   ├── services
+│   │   ├── api.js
+│   │   ├── authService.js
+│   │   ├── componentService.js
+│   │   ├── dashboardService.js
+│   │   ├── logService.js
+│   │   ├── notificationService.js
+│   │   └── userService.js
+│   └── utils
+│       └── auth.js
+└── vercel.json
