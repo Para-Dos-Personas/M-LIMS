@@ -219,6 +219,7 @@ const ComponentTable = () => {
                 value={selectedRow.location}
                 onChange={(e) => setSelectedRow({ ...selectedRow, location: e.target.value })}
               />
+              {/* Critical Low Threshold Field */}
               <TextField
                 margin="dense"
                 label="Critical Low Threshold"
@@ -229,15 +230,6 @@ const ComponentTable = () => {
                 helperText="Set the critical low quantity for this component"
               />
               {/* Critical Low Threshold Field */}
-              <TextField
-                margin="dense"
-                label="Critical Low Threshold"
-                fullWidth
-                type="number"
-                value={selectedRow.criticalThreshold ?? selectedRow.critical_low ?? ''}
-                onChange={(e) => setSelectedRow({ ...selectedRow, criticalThreshold: e.target.value })}
-                helperText="Set the critical low quantity for this component"
-              />
             </>
           )}
         </DialogContent>
