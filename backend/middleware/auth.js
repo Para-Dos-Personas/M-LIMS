@@ -1,9 +1,11 @@
 // backend/middleware/auth.js
+
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 
 /**
- * Verifies JWT and loads user into req.user
+ * Verifies JWT, loads user into req.user,
+ * and attaches the list of warehouse IDs the user may access.
  */
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -16,11 +18,21 @@ const authenticateToken = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Load user by PK. Make sure your User model includes
-    // a `warehouses` array or association if you plan to use it later.
+    // Find user by primary key
     const user = await User.findByPk(decoded.id);
     if (!user) {
       return res.status(401).json({ error: 'User not found, invalid token' });
+    }
+
+    // For non-admins, fetch their permitted warehouses
+    if (user.role !== 'Admin') {
+      // Sequelize mixin from User.belongsToMany(Warehouse)
+      const userWarehouses = await user.getWarehouses({ attributes: ['id'] });
+      // Flatten to an array of numeric IDs
+      user.warehouses = userWarehouses.map(w => w.id);
+    } else {
+      // Admins can access all; optional to attach empty array or omit
+      user.warehouses = [];
     }
 
     req.user = user;
@@ -31,7 +43,8 @@ const authenticateToken = async (req, res, next) => {
 };
 
 /**
- * Restricts route to users whose role is in `roles`
+ * Restricts route to users whose role is included in the given array.
+ * Example: requireRole(['Admin', 'Manager'])
  */
 const requireRole = (roles) => {
   return (req, res, next) => {
@@ -46,21 +59,19 @@ const requireRole = (roles) => {
 };
 
 /**
- * Blocks non-admins from POSTing to warehouses they don't own
- * Assumes `req.body.warehouseId` or `req.params.warehouseId` is set
+ * Blocks non-admins from creating/logging in warehouses they don't own.
+ * Expects req.body.warehouseId or req.params.warehouseId to be set.
  */
 const checkWarehousePermission = (req, res, next) => {
   const user = req.user;
-  const targetWarehouseId = req.body.warehouseId || req.params.warehouseId;
+  const targetWarehouseId = parseInt(req.body.warehouseId || req.params.warehouseId, 10);
 
   // Admin bypass
-  if (user.role === 'admin') {
+  if (user.role === 'Admin') {
     return next();
   }
 
-  // Ensure user.warehouses is an array of IDs you populated at login
   const allowed = user.warehouses || [];
-
   if (!allowed.includes(targetWarehouseId)) {
     return res
       .status(403)
@@ -70,9 +81,9 @@ const checkWarehousePermission = (req, res, next) => {
   next();
 };
 
-// Default export is the main auth function
+// Default export: authentication middleware
 module.exports = authenticateToken;
 
-// Attach helpers
+// Named exports for role and warehouse checks
 module.exports.requireRole = requireRole;
 module.exports.checkWarehousePermission = checkWarehousePermission;
