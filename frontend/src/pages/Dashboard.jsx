@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Grid, Paper, Box, Chip, Alert } from '@mui/material';
+import { Container, Typography, Grid, Paper, Box, Chip, Alert, CircularProgress } from '@mui/material';
 import dashboardService from '../services/dashboardService';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import InventoryIcon from '@mui/icons-material/Inventory';
@@ -17,24 +17,19 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Helper function to process and group chart data
   const processChartData = (logs) => {
     if (!logs || !Array.isArray(logs)) return [];
 
-    // Group by component name and sum quantities
     const groupedData = logs.reduce((acc, log) => {
       const componentName = log.Component?.name || `Component ${log.componentId}`;
-
       if (acc[componentName]) {
         acc[componentName] += log.quantity;
       } else {
         acc[componentName] = log.quantity;
       }
-
       return acc;
     }, {});
 
-    // Convert to array and sort alphabetically
     return Object.entries(groupedData)
       .map(([component, quantity]) => ({
         component,
@@ -43,25 +38,19 @@ const Dashboard = () => {
       .sort((a, b) => a.component.localeCompare(b.component));
   };
 
-  // Helper function to check if item is old stock (manufacture date + 1 year < today)
   const isOldStock = (item) => {
     if (!item.manufactureDate) return false;
-    
     const manufactureDate = new Date(item.manufactureDate);
     const oneYearAfterManufacture = new Date(manufactureDate);
     oneYearAfterManufacture.setFullYear(manufactureDate.getFullYear() + 1);
-    
     return oneYearAfterManufacture < new Date();
   };
 
-  // Helper function to check if item is expired (expiry date < today)
   const isExpired = (item) => {
     if (!item.expiryDate) return false;
-    
     const expiryDate = new Date(item.expiryDate);
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time to compare only dates
-    
+    today.setHours(0, 0, 0, 0);
     return expiryDate < today;
   };
 
@@ -69,36 +58,29 @@ const Dashboard = () => {
     const fetchDashboard = async () => {
       try {
         setLoading(true);
-        const [inwardResponse, outwardResponse, low, old, allComponents] = await Promise.all([
+        setError(null);
+        // Correctly handle the Promise.all for all data sources
+        const [inwardResponse, outwardResponse, lowStockResponse, allComponentsResponse] = await Promise.all([
           dashboardService.getInwardStats(),
           dashboardService.getOutwardStats(),
           dashboardService.getLowStock(),
-          dashboardService.getOldStock(),
-          dashboardService.getAllComponents(), // Assuming this method exists to get all components
+          dashboardService.getAllComponents(),
         ]);
 
-        // Process chart data with grouping and sorting
         const inwardChartData = processChartData(inwardResponse.logs);
         const outwardChartData = processChartData(outwardResponse.logs);
 
-        // Filter components for old stock and expired stock
-        const oldStockItems = Array.isArray(allComponents) ? allComponents.filter(isOldStock) : [];
-        const expiredStockItems = Array.isArray(allComponents) ? allComponents.filter(isExpired) : [];
+        const oldStockItems = Array.isArray(allComponentsResponse) ? allComponentsResponse.filter(isOldStock) : [];
+        const expiredStockItems = Array.isArray(allComponentsResponse) ? allComponentsResponse.filter(isExpired) : [];
 
         setInwardData(inwardChartData);
         setOutwardData(outwardChartData);
-        setLowStock(Array.isArray(low) ? low : []);
+        setLowStock(Array.isArray(lowStockResponse) ? lowStockResponse : []);
         setOldStock(oldStockItems);
         setExpiredStock(expiredStockItems);
-        setError(null);
       } catch (err) {
         console.error('❌ Error fetching dashboard data:', err);
-        setError('Failed to load dashboard data');
-        setInwardData([]);
-        setOutwardData([]);
-        setLowStock([]);
-        setOldStock([]);
-        setExpiredStock([]);
+        setError('Failed to load dashboard data. Please check your network connection and try again.');
       } finally {
         setLoading(false);
       }
@@ -124,23 +106,11 @@ const Dashboard = () => {
     return 'LOW';
   };
 
-  // Chart styles to remove hover effects
   const chartStyles = {
-    '& .recharts-bar-rectangle': {
-      filter: 'none !important',
-      opacity: '1 !important',
-    },
-    '& .recharts-bar-rectangle:hover': {
-      filter: 'none !important',
-      opacity: '1 !important',
-    },
-    '& .recharts-active-bar': {
-      filter: 'none !important',
-      opacity: '1 !important',
-    },
-    '& .recharts-bar': {
-      filter: 'none !important',
-    }
+    '& .recharts-bar-rectangle': { filter: 'none !important', opacity: '1 !important' },
+    '& .recharts-bar-rectangle:hover': { filter: 'none !important', opacity: '1 !important' },
+    '& .recharts-active-bar': { filter: 'none !important', opacity: '1 !important' },
+    '& .recharts-bar': { filter: 'none !important' }
   };
   
   const scrollableChartBox = {
@@ -151,12 +121,21 @@ const Dashboard = () => {
     '&::-webkit-scrollbar': { display: 'none' }
   };
 
+  const cardStyle = (gradient) => ({
+    p: 3,
+    borderRadius: 4,
+    background: gradient,
+    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+    '&:hover': {
+      transform: 'translateY(-6px) scale(1.02)',
+      boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
+    },
+  });
+
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Typography variant="h3" gutterBottom color="primary" fontWeight={700}>
-          Dashboard
-        </Typography>
+      <Container maxWidth="lg" sx={{ mt: 4, textAlign: 'center' }}>
+        <CircularProgress color="primary" sx={{ mt: 10 }} />
         <Typography>Loading dashboard data...</Typography>
       </Container>
     );
@@ -172,18 +151,6 @@ const Dashboard = () => {
       </Container>
     );
   }
-
-  // Reusable card style
-  const cardStyle = (gradient) => ({
-    p: 3,
-    borderRadius: 4,
-    background: gradient,
-    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-    '&:hover': {
-      transform: 'translateY(-6px) scale(1.02)',
-      boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
-    },
-  });
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -201,7 +168,6 @@ const Dashboard = () => {
       </Typography>
 
       <Grid container spacing={4}>
-        {/* Inwarded Items */}
         <Grid item xs={12} md={6}>
           <Paper elevation={6} sx={cardStyle('linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)')}>
             <Box display="flex" alignItems="center" mb={2}>
@@ -246,7 +212,6 @@ const Dashboard = () => {
           </Paper>
         </Grid>
 
-        {/* Outwarded Items */}
         <Grid item xs={12} md={6}>
           <Paper elevation={6} sx={cardStyle('linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)')}>
             <Box display="flex" alignItems="center" mb={2}>
@@ -291,7 +256,6 @@ const Dashboard = () => {
           </Paper>
         </Grid>
 
-        {/* Critical Low Stock */}
         <Grid item xs={12} md={6}>
           <Paper elevation={6} sx={cardStyle('linear-gradient(135deg, #fddb92 0%, #d1fdff 100%)')}>
             <Box display="flex" alignItems="center" mb={2}>
@@ -338,7 +302,6 @@ const Dashboard = () => {
           </Paper>
         </Grid>
 
-        {/* Old Stock */}
         <Grid item xs={12} md={6}>
           <Paper elevation={6} sx={cardStyle('linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%)')}>
             <Box display="flex" alignItems="center" mb={2}>
@@ -374,7 +337,6 @@ const Dashboard = () => {
           </Paper>
         </Grid>
 
-        {/* Expired Stock */}
         <Grid item xs={12} md={6}>
           <Paper elevation={6} sx={cardStyle('linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%)')}>
             <Box display="flex" alignItems="center" mb={2}>
