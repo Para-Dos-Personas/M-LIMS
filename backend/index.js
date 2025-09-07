@@ -10,7 +10,7 @@ const app = express();
 
 // CORS configuration
 app.use(cors({
-  origin: '*',        // Allow requests from ANY origin
+  origin: '*',      // Allow requests from ANY origin
   credentials: true,  // Allow cookies, authorization headers
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -26,6 +26,7 @@ const userRoutes = require('./routes/userRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const logRoutes = require('./routes/logRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const warehouseRoutes = require('./routes/warehouseRoutes'); // --- ADD THIS LINE ---
 
 app.use('/api/components', componentRoutes);
 app.use('/api/users', userRoutes);
@@ -33,6 +34,7 @@ app.use('/auth', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/logs', logRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/warehouses', warehouseRoutes); // --- ADD THIS LINE ---
 
 // Test route
 app.get("/", (req, res) => {
@@ -91,7 +93,6 @@ app.listen(PORT, () => {
   console.log(`Health check: http://localhost:${PORT}/health`);
   console.log(`Seed data: POST http://localhost:${PORT}/seed`);
 });
-
 
 // Export for Vercel
 module.exports = app;

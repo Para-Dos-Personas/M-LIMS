@@ -29,6 +29,15 @@ module.exports = (sequelize, DataTypes) => {
       as: 'logs',
       onDelete: 'CASCADE'
     });
+
+    // --- ADD THIS ASSOCIATION ---
+    // A user can be assigned to many warehouses through the UserWarehouses table.
+    User.belongsToMany(models.Warehouse, {
+      through: 'UserWarehouses', // This is the name of the junction table
+      foreignKey: 'userId',
+      as: 'warehouses'
+    });
+    // --------------------------
   };
 
   return User;
