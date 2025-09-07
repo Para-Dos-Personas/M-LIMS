@@ -1,114 +1,108 @@
-// controllers/dashboardController.js
-const { Component, ComponentLog, User } = require('../models');
+const { Component, ComponentLog } = require('../models');
 const { Op } = require('sequelize');
 const sequelize = require('../config/db');
 
-// @desc    Get inward statistics for a specific month
+// Helper function to create a where clause for filtering by warehouse
+const getWarehouseFilter = (warehouseId) => {
+  let whereClause = {};
+  if (warehouseId && warehouseId !== 'all') {
+    whereClause.warehouseId = warehouseId;
+  }
+  return whereClause;
+};
+
+// Get inward statistics
 exports.getInwardStats = async (req, res) => {
   try {
-    const { month } = req.query; // e.g., "2025-08"
+    const { month, warehouseId } = req.query;
     if (!month) {
-        return res.status(400).json({ error: 'Month query parameter is required in YYYY-MM format.' });
+      return res.status(400).json({ error: 'Month query parameter is required.' });
     }
+    const componentWhereClause = getWarehouseFilter(warehouseId);
+
     const startDate = new Date(`${month}-01T00:00:00Z`);
     const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
 
     const inwardLogs = await ComponentLog.findAll({
-      where: {
-        changeType: 'inward',
-        createdAt: { [Op.between]: [startDate, endDate] },
-      },
-      include: [{ model: Component, as: 'Component', attributes: ['name'] }]
+      where: { changeType: 'inward', createdAt: { [Op.between]: [startDate, endDate] } },
+      include: [{ model: Component, as: 'Component', attributes: ['name'], where: componentWhereClause, required: true }]
     });
 
     const totalInward = inwardLogs.reduce((sum, log) => sum + log.quantity, 0);
     const uniqueComponents = [...new Set(inwardLogs.map(log => log.componentId))].length;
-
     res.json({ totalInward, uniqueComponents, logs: inwardLogs });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch inward statistics', details: error.message });
+    res.status(500).json({ error: 'Failed to fetch inward stats', details: error.message });
   }
 };
 
-// @desc    Get outward statistics for a specific month
+// Get outward statistics
 exports.getOutwardStats = async (req, res) => {
-    try {
-        const { month } = req.query; // e.g., "2025-08"
-        if (!month) {
-            return res.status(400).json({ error: 'Month query parameter is required in YYYY-MM format.' });
-        }
-        const startDate = new Date(`${month}-01T00:00:00Z`);
-        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
+  try {
+    const { month, warehouseId } = req.query;
+    if (!month) {
+      return res.status(400).json({ error: 'Month query parameter is required.' });
+    }
+    const componentWhereClause = getWarehouseFilter(warehouseId);
     
-        const outwardLogs = await ComponentLog.findAll({
-          where: {
-            changeType: 'outward',
-            createdAt: { [Op.between]: [startDate, endDate] },
-          },
-          include: [{ model: Component, as: 'Component', attributes: ['name'] }]
-        });
-    
-        const totalOutward = outwardLogs.reduce((sum, log) => sum + log.quantity, 0);
-        const uniqueComponents = [...new Set(outwardLogs.map(log => log.componentId))].length;
-    
-        res.json({ totalOutward, uniqueComponents, logs: outwardLogs });
-      } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch outward statistics', details: error.message });
-      }
+    const startDate = new Date(`${month}-01T00:00:00Z`);
+    const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
+
+    const outwardLogs = await ComponentLog.findAll({
+      where: { changeType: 'outward', createdAt: { [Op.between]: [startDate, endDate] } },
+      include: [{ model: Component, as: 'Component', attributes: ['name'], where: componentWhereClause, required: true }]
+    });
+
+    const totalOutward = outwardLogs.reduce((sum, log) => sum + log.quantity, 0);
+    const uniqueComponents = [...new Set(outwardLogs.map(log => log.componentId))].length;
+    res.json({ totalOutward, uniqueComponents, logs: outwardLogs });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch outward stats', details: error.message });
+  }
 };
 
-// @desc    Get all components that are low in stock
+
+// Get low stock components
 exports.getLowStock = async (req, res) => {
   try {
-    const lowStockComponents = await Component.findAll({
-      where: {
-        quantity: {
-          [Op.lte]: sequelize.col('criticalThreshold')
-        }
-      },
-      order: [['quantity', 'ASC']],
-    });
-    res.json(lowStockComponents);
+    const { warehouseId } = req.query;
+    const whereClause = getWarehouseFilter(warehouseId);
+    whereClause.quantity = { [Op.lte]: sequelize.col('criticalThreshold') };
+
+    const components = await Component.findAll({ where: whereClause, order: [['quantity', 'ASC']] });
+    res.json(components);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch low stock components', details: error.message });
+    res.status(500).json({ error: 'Failed to fetch low stock', details: error.message });
   }
 };
 
-// @desc    Get old stock components (based on manufactureDate, not createdAt)
+// Get old stock components
 exports.getOldStock = async (req, res) => {
   try {
+    const { warehouseId } = req.query;
+    const whereClause = getWarehouseFilter(warehouseId);
+    
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    whereClause.manufactureDate = { [Op.lt]: oneYearAgo };
 
-    const oldStockComponents = await Component.findAll({
-      where: {
-        manufactureDate: {
-          [Op.lt]: oneYearAgo
-        }
-      },
-      order: [['manufactureDate', 'ASC']],
-    });
-    res.json(oldStockComponents);
+    const components = await Component.findAll({ where: whereClause, order: [['manufactureDate', 'ASC']] });
+    res.json(components);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch old stock components', details: error.message });
+    res.status(500).json({ error: 'Failed to fetch old stock', details: error.message });
   }
 };
 
-// @desc    Get expired stock components
+// Get expired stock components
 exports.getExpiredStock = async (req, res) => {
-    try {
-        const today = new Date();
+  try {
+    const { warehouseId } = req.query;
+    const whereClause = getWarehouseFilter(warehouseId);
+    whereClause.expiryDate = { [Op.lt]: new Date() };
 
-        const expiredComponents = await Component.findAll({
-          where: {
-            expiryDate: {
-              [Op.lt]: today
-            }
-          },
-          order: [['expiryDate', 'ASC']],
-        });
-        res.json(expiredComponents);
-      } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch expired stock components', details: error.message });
-      }
+    const components = await Component.findAll({ where: whereClause, order: [['expiryDate', 'ASC']] });
+    res.json(components);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch expired stock', details: error.message });
+  }
 };

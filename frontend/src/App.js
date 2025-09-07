@@ -12,6 +12,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import AddComponent from './pages/AddComponent';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { WarehouseProvider } from './contexts/WarehouseContext'; // --- ADD THIS IMPORT ---
 
 
 // A simple guard that redirects to /login if no token
@@ -33,9 +34,13 @@ function App() {
           <Route
             path="/"
             element={
-              <ProtectedRoute>
-                <ProtectedLayout />
-              </ProtectedRoute>
+              // --- WRAP THIS SECTION ---
+              <WarehouseProvider>
+                <ProtectedRoute>
+                  <ProtectedLayout />
+                </ProtectedRoute>
+              </WarehouseProvider>
+              // -------------------------
             }
           >
             {/* Redirect base "/" to /dashboard */}

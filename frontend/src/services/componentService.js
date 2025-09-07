@@ -1,10 +1,16 @@
 import api from './api';
 
 const endpoint = '/api/components';
+const userServiceEndpoint = '/api/users';
 
 const componentService = {
-  getAll: async () => {
-    const res = await api.get(endpoint);
+  getAll: async (warehouseId = null) => {
+    let url = endpoint;
+    // If a specific warehouse is selected (and it's not 'all'), add it as a query parameter.
+    if (warehouseId && warehouseId !== 'all') {
+      url += `?warehouseId=${warehouseId}`;
+    }
+    const res = await api.get(url);
     return res.data;
   },
 
@@ -37,7 +43,13 @@ const componentService = {
   getLogs: async (componentId) => {
     const res = await api.get(`${endpoint}/${componentId}/logs`);
     return res.data;
-  }
+  },
+  
+  // NEW FUNCTION: Get the warehouses a user is assigned to
+  getUserPermissions: async () => {
+    const res = await api.get(`${userServiceEndpoint}/warehouses`);
+    return res.data;
+  },
 };
 
 export default componentService;

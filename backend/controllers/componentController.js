@@ -1,8 +1,16 @@
-// controllers/componentController.js
 const db = require('../models');
 const { Component, ComponentLog, User } = db;
 
-// Create a component in a specific warehouse
+// Helper function to check if a user has write permission for a warehouse
+const canEditWarehouse = async (user, warehouseId) => {
+  if (user.role === 'Admin') {
+    return true; // Admins can edit anything
+  }
+  // Regular users must be explicitly assigned to the warehouse
+  return await user.hasWarehouse(warehouseId);
+};
+
+// Create a component (requires edit permission)
 exports.createComponent = async (req, res) => {
   try {
     const { warehouseId } = req.body;
@@ -10,10 +18,9 @@ exports.createComponent = async (req, res) => {
       return res.status(400).json({ error: 'warehouseId is required.' });
     }
 
-    // SECURITY CHECK: User must have access to the warehouse
-    const hasAccess = await req.user.hasWarehouse(warehouseId);
-    if (req.user.role !== 'Admin' && !hasAccess) {
-      return res.status(403).json({ error: 'Forbidden: You do not have access to this warehouse.' });
+    const hasPermission = await canEditWarehouse(req.user, warehouseId);
+    if (!hasPermission) {
+      return res.status(403).json({ error: 'Forbidden: You do not have permission to add components to this warehouse.' });
     }
 
     const component = await Component.create(req.body);
@@ -23,55 +30,44 @@ exports.createComponent = async (req, res) => {
   }
 };
 
-// Get all components for a specific warehouse
+// Get all components (publicly viewable by warehouse)
 exports.getAllComponents = async (req, res) => {
   try {
     const { warehouseId } = req.query;
-    if (!warehouseId) {
-      return res.status(400).json({ error: 'A warehouseId query parameter is required.' });
+    let whereClause = {};
+    
+    if (warehouseId) {
+      whereClause.warehouseId = warehouseId;
     }
+    // If no warehouseId is provided, it returns all components for all warehouses (for an "All" view)
 
-    // SECURITY CHECK: User must have access to the warehouse
-    const hasAccess = await req.user.hasWarehouse(warehouseId);
-    if (req.user.role !== 'Admin' && !hasAccess) {
-      return res.status(403).json({ error: 'Forbidden: You do not have access to this warehouse.' });
-    }
-
-    const components = await Component.findAll({ where: { warehouseId } });
+    const components = await Component.findAll({ where: whereClause });
     res.json(components);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch components' });
   }
 };
 
-// Get a single component by ID
+// Get component by ID (publicly viewable)
 exports.getComponentById = async (req, res) => {
   try {
     const component = await Component.findByPk(req.params.id);
     if (!component) return res.status(404).json({ error: 'Component not found' });
-
-    // SECURITY CHECK: User must have access to the component's warehouse
-    const hasAccess = await req.user.hasWarehouse(component.warehouseId);
-    if (req.user.role !== 'Admin' && !hasAccess) {
-      return res.status(403).json({ error: 'Forbidden: You do not have access to this component.' });
-    }
-
     res.json(component);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch component' });
   }
 };
 
-// Update a component
+// Update component (requires edit permission)
 exports.updateComponent = async (req, res) => {
   try {
     const component = await Component.findByPk(req.params.id);
     if (!component) return res.status(404).json({ error: 'Component not found' });
 
-    // SECURITY CHECK: User must have access to the component's warehouse
-    const hasAccess = await req.user.hasWarehouse(component.warehouseId);
-    if (req.user.role !== 'Admin' && !hasAccess) {
-      return res.status(403).json({ error: 'Forbidden: You do not have access to this component.' });
+    const hasPermission = await canEditWarehouse(req.user, component.warehouseId);
+    if (!hasPermission) {
+      return res.status(403).json({ error: 'Forbidden: You do not have permission to edit components in this warehouse.' });
     }
 
     await component.update(req.body);
@@ -81,16 +77,15 @@ exports.updateComponent = async (req, res) => {
   }
 };
 
-// Delete a component
+// Delete component (requires edit permission)
 exports.deleteComponent = async (req, res) => {
   try {
     const component = await Component.findByPk(req.params.id);
     if (!component) return res.status(404).json({ error: 'Component not found' });
 
-    // SECURITY CHECK: User must have access to the component's warehouse
-    const hasAccess = await req.user.hasWarehouse(component.warehouseId);
-    if (req.user.role !== 'Admin' && !hasAccess) {
-      return res.status(403).json({ error: 'Forbidden: You do not have access to this component.' });
+    const hasPermission = await canEditWarehouse(req.user, component.warehouseId);
+    if (!hasPermission) {
+      return res.status(403).json({ error: 'Forbidden: You do not have permission to delete components in this warehouse.' });
     }
 
     await component.destroy();
@@ -100,18 +95,18 @@ exports.deleteComponent = async (req, res) => {
   }
 };
 
-// Add a component log (inward/outward)
+// Add a component log (requires edit permission)
 exports.addLog = async (req, res) => {
   try {
     const component = await Component.findByPk(req.params.id);
     if (!component) return res.status(404).json({ error: 'Component not found' });
-
-    // SECURITY CHECK: User must have access to the component's warehouse
-    const hasAccess = await req.user.hasWarehouse(component.warehouseId);
-    if (req.user.role !== 'Admin' && !hasAccess) {
-      return res.status(403).json({ error: 'Forbidden: You do not have access to this component.' });
+    
+    const hasPermission = await canEditWarehouse(req.user, component.warehouseId);
+    if (!hasPermission) {
+        return res.status(403).json({ error: 'Forbidden: You do not have permission to log changes for this component.' });
     }
 
+    // (The rest of your addLog logic remains the same)
     const { changeType, quantity, reason, project } = req.body;
     const parsedQuantity = parseInt(quantity, 10);
     
@@ -143,18 +138,9 @@ exports.addLog = async (req, res) => {
   }
 };
 
-// Get logs for a component
+// Get logs for a component (publicly viewable)
 exports.getLogs = async (req, res) => {
   try {
-    const component = await Component.findByPk(req.params.id);
-    if (!component) return res.status(404).json({ error: 'Component not found' });
-    
-    // SECURITY CHECK: User must have access to the component's warehouse
-    const hasAccess = await req.user.hasWarehouse(component.warehouseId);
-    if (req.user.role !== 'Admin' && !hasAccess) {
-      return res.status(403).json({ error: 'Forbidden: You do not have access to this component\'s logs.' });
-    }
-
     const logs = await ComponentLog.findAll({
       where: { componentId: req.params.id },
       include: [{ model: User, as: 'User', attributes: ['username'] }]
