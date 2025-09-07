@@ -45,14 +45,35 @@ const AddComponent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
+    // --- START: MODIFIED SECTION ---
+    // Create date strings in "YYYY-MM-DD" format if month and year are provided.
+    const manufactureDate = form.manufactureYear && form.manufactureMonth
+      ? `${form.manufactureYear}-${String(form.manufactureMonth).padStart(2, '0')}-01`
+      : null;
+
+    const expiryDate = form.expiryYear && form.expiryMonth
+      ? `${form.expiryYear}-${String(form.expiryMonth).padStart(2, '0')}-01`
+      : null;
+
     try {
-      // Parse numeric fields
+      // Construct the payload with correctly parsed numbers and the new date fields.
       const payload = {
         ...form,
         quantity: parseInt(form.quantity, 10),
         unitPrice: parseFloat(form.unitPrice),
         criticalThreshold: parseInt(form.criticalThreshold, 10),
+        manufactureDate, // Use the new date string
+        expiryDate,      // Use the new date string
       };
+      
+      // Remove the separate month/year fields from the payload.
+      delete payload.manufactureMonth;
+      delete payload.manufactureYear;
+      delete payload.expiryMonth;
+      delete payload.expiryYear;
+    // --- END: MODIFIED SECTION ---
 
       await componentService.create(payload);
       setOpenSnackbar(true);
