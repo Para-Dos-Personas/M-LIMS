@@ -12,10 +12,8 @@ router.post('/login', userController.loginUser);
 // == AUTHENTICATED USER ROUTES ==
 router.get('/profile', authenticateToken, userController.getUserProfile);
 
-// --- ADD THIS LINE ---
 // Get all warehouses the current user has access to
 router.get('/warehouses', authenticateToken, userController.getAccessibleWarehouses);
-// ---------------------
 
 // == ADMIN ONLY ROUTES ==
 router.get('/', authenticateToken, requireRole(['Admin']), userController.getAllUsers);

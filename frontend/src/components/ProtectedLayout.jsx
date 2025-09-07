@@ -13,7 +13,7 @@ const drawerWidth = 250;
 const Main = styled('main')(({ theme, isMobile }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
-    marginLeft: isMobile ? 0 : `${drawerWidth}px`, // Corrected marginLeft for permanent drawer
+    marginLeft: isMobile ? 0 : `${drawerWidth-270}px`, // Corrected marginLeft for permanent drawer
     transition: theme.transitions.create('margin', {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,

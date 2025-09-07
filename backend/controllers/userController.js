@@ -1,5 +1,5 @@
 // controllers/userController.js
-const { User, Warehouse } = require('../models'); // Ensure Warehouse is imported
+const { User, Warehouse } = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -18,7 +18,6 @@ exports.registerUser = async (req, res) => {
     const user = await User.create({
       username,
       password: hashedPassword,
-      // Allow role assignment only if the request is made by an already authenticated admin
       role: role && req.user?.role === 'Admin' ? role : 'User',
     });
 
@@ -58,7 +57,6 @@ exports.loginUser = async (req, res) => {
 
 // @desc    Get current user's profile (Authenticated Users)
 exports.getUserProfile = async (req, res) => {
-  // The user object is attached to the request by the authenticateToken middleware
   const { password, ...userWithoutPassword } = req.user.get({ plain: true });
   res.json(userWithoutPassword);
 };
@@ -90,7 +88,7 @@ exports.updateUserRole = async (req, res) => {
 
     user.role = role;
     await user.save();
-    
+
     const { password, ...userWithoutPassword } = user.get({ plain: true });
     res.json(userWithoutPassword);
   } catch (error) {
@@ -106,7 +104,7 @@ exports.deleteUser = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     if (user.id === req.user.id) {
-        return res.status(400).json({ error: "Admins cannot delete their own account."})
+      return res.status(400).json({ error: "Admins cannot delete their own account." });
     }
 
     await user.destroy();
@@ -116,25 +114,21 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-// --- NEW FUNCTION ADDED ---
 // @desc    Get warehouses accessible by the logged-in user
 // @route   GET /api/users/warehouses
 exports.getAccessibleWarehouses = async (req, res) => {
-    try {
-      const user = req.user; // User is attached from the auth middleware
-      let warehouses;
-  
-      if (user.role === 'Admin') {
-        // Admin gets all warehouses
-        warehouses = await Warehouse.findAll({ order: [['name', 'ASC']] });
-      } else {
-        // Regular user gets only their assigned warehouses
-        // 'getWarehouses' is a special method added by Sequelize's association
-        warehouses = await user.getWarehouses({ order: [['name', 'ASC']] });
-      }
-  
-      res.json(warehouses);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch user warehouses', details: error.message });
+  try {
+    const user = req.user;
+    let warehouses;
+
+    if (user.role === 'Admin') {
+      warehouses = await Warehouse.findAll({ order: [['name', 'ASC']] });
+    } else {
+      warehouses = await user.getWarehouses({ order: [['name', 'ASC']] });
     }
-  };
+
+    res.json(warehouses);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch user warehouses', details: error.message });
+  }
+};

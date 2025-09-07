@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -16,10 +16,12 @@ import {
   Chip,
 } from '@mui/material';
 import componentService from '../services/componentService';
+import warehouseService from '../services/warehouseService';
 
 const AddComponent = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
+    warehouseId: '',
     name: '',
     manufacturer: '',
     partNumber: '',
@@ -35,8 +37,16 @@ const AddComponent = () => {
     expiryMonth: '',
     expiryYear: '',
   });
+  const [warehouses, setWarehouses] = useState([]);
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  useEffect(() => {
+    warehouseService
+      .getMyWarehouses()
+      .then(res => setWarehouses(res.data))
+      .catch(console.error);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,8 +57,6 @@ const AddComponent = () => {
     e.preventDefault();
     setError('');
 
-    // --- START: MODIFIED SECTION ---
-    // Create date strings in "YYYY-MM-DD" format if month and year are provided.
     const manufactureDate = form.manufactureYear && form.manufactureMonth
       ? `${form.manufactureYear}-${String(form.manufactureMonth).padStart(2, '0')}-01`
       : null;
@@ -58,22 +66,19 @@ const AddComponent = () => {
       : null;
 
     try {
-      // Construct the payload with correctly parsed numbers and the new date fields.
       const payload = {
         ...form,
         quantity: parseInt(form.quantity, 10),
         unitPrice: parseFloat(form.unitPrice),
         criticalThreshold: parseInt(form.criticalThreshold, 10),
-        manufactureDate, // Use the new date string
-        expiryDate,      // Use the new date string
+        manufactureDate,
+        expiryDate,
       };
-      
-      // Remove the separate month/year fields from the payload.
+
       delete payload.manufactureMonth;
       delete payload.manufactureYear;
       delete payload.expiryMonth;
       delete payload.expiryYear;
-    // --- END: MODIFIED SECTION ---
 
       await componentService.create(payload);
       setOpenSnackbar(true);
@@ -83,7 +88,6 @@ const AddComponent = () => {
     }
   };
 
-  // Calculate if current quantity would be low stock
   const isLowStock = form.quantity && form.criticalThreshold &&
     parseInt(form.quantity) <= parseInt(form.criticalThreshold);
 
@@ -95,6 +99,23 @@ const AddComponent = () => {
         </Typography>
 
         <form onSubmit={handleSubmit} noValidate>
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel id="warehouse-label">Warehouse</InputLabel>
+            <Select
+              labelId="warehouse-label"
+              name="warehouseId"
+              value={form.warehouseId}
+              label="Warehouse"
+              onChange={handleChange}
+            >
+              {warehouses.map(w => (
+                <MenuItem key={w.id} value={w.id}>
+                  {w.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
           <TextField
             label="Name"
             name="name"
@@ -277,7 +298,9 @@ const AddComponent = () => {
               <MenuItem value="Inhalers">Inhalers</MenuItem>
               <MenuItem value="Nebulizers">Nebulizers</MenuItem>
               <MenuItem value="Equipments">Equipments</MenuItem>
-              <MenuItem value="Miscellaneous Lab Supplies">Miscellaneous Lab Supplies</MenuItem>
+              <MenuItem value="Miscellaneous Lab Supplies">
+                Miscellaneous Lab Supplies
+              </MenuItem>
             </Select>
           </FormControl>
 
