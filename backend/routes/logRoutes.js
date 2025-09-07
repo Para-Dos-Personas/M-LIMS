@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { ComponentLog, Component, User } = require('../models');
-const  authenticateToken  = require('../middleware/auth');
+const authenticateToken = require('../middleware/auth');
 
 // Apply authentication to all log routes
 router.use(authenticateToken);
