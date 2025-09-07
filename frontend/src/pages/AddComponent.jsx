@@ -1,3 +1,5 @@
+// src/pages/AddComponent.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -17,9 +19,12 @@ import {
 } from '@mui/material';
 import componentService from '../services/componentService';
 import warehouseService from '../services/warehouseService';
+import { useWarehouse } from '../contexts/WarehouseContext';
 
 const AddComponent = () => {
   const navigate = useNavigate();
+  const { selectedWarehouse } = useWarehouse();
+
   const [form, setForm] = useState({
     warehouseId: '',
     name: '',
@@ -41,6 +46,7 @@ const AddComponent = () => {
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
+  // load all warehouses for dropdown
   useEffect(() => {
     warehouseService
       .getMyWarehouses()
@@ -48,48 +54,69 @@ const AddComponent = () => {
       .catch(console.error);
   }, []);
 
-  const handleChange = (e) => {
+  // default to context’s selectedWarehouse if one is set
+  useEffect(() => {
+    if (selectedWarehouse?.id && selectedWarehouse.id !== 'all') {
+      setForm(prev => ({
+        ...prev,
+        warehouseId: String(selectedWarehouse.id),
+      }));
+    }
+  }, [selectedWarehouse]);
+
+  const handleChange = e => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setError('');
 
-    const manufactureDate = form.manufactureYear && form.manufactureMonth
-      ? `${form.manufactureYear}-${String(form.manufactureMonth).padStart(2, '0')}-01`
-      : null;
+    if (!form.warehouseId) {
+      setError('Please select a warehouse');
+      return;
+    }
 
-    const expiryDate = form.expiryYear && form.expiryMonth
-      ? `${form.expiryYear}-${String(form.expiryMonth).padStart(2, '0')}-01`
-      : null;
+    // build ISO dates if provided
+    const manufactureDate =
+      form.manufactureYear && form.manufactureMonth
+        ? `${form.manufactureYear}-${String(form.manufactureMonth).padStart(2, '0')}-01`
+        : null;
+    const expiryDate =
+      form.expiryYear && form.expiryMonth
+        ? `${form.expiryYear}-${String(form.expiryMonth).padStart(2, '0')}-01`
+        : null;
 
     try {
       const payload = {
-        ...form,
+        warehouseId: parseInt(form.warehouseId, 10),
+        name: form.name,
+        manufacturer: form.manufacturer,
+        partNumber: form.partNumber,
+        description: form.description,
         quantity: parseInt(form.quantity, 10),
+        location: form.location,
         unitPrice: parseFloat(form.unitPrice),
+        datasheetLink: form.datasheetLink,
+        category: form.category,
         criticalThreshold: parseInt(form.criticalThreshold, 10),
         manufactureDate,
         expiryDate,
       };
 
-      delete payload.manufactureMonth;
-      delete payload.manufactureYear;
-      delete payload.expiryMonth;
-      delete payload.expiryYear;
-
       await componentService.create(payload);
       setOpenSnackbar(true);
       setTimeout(() => navigate('/inventory'), 1500);
     } catch (err) {
-      setError(err.message || 'Failed to add component');
+      setError(err.response?.data?.message || err.message || 'Failed to add component');
     }
   };
 
-  const isLowStock = form.quantity && form.criticalThreshold &&
-    parseInt(form.quantity) <= parseInt(form.criticalThreshold);
+  const isLowStock =
+    form.quantity &&
+    form.criticalThreshold &&
+    parseInt(form.quantity, 10) <= parseInt(form.criticalThreshold, 10);
 
   return (
     <Container maxWidth="sm">
@@ -107,9 +134,11 @@ const AddComponent = () => {
               value={form.warehouseId}
               label="Warehouse"
               onChange={handleChange}
+              // lock it down if context has a specific warehouse
+              disabled={!!selectedWarehouse && selectedWarehouse.id !== 'all'}
             >
               {warehouses.map(w => (
-                <MenuItem key={w.id} value={w.id}>
+                <MenuItem key={w.id} value={String(w.id)}>
                   {w.name}
                 </MenuItem>
               ))}
@@ -199,7 +228,7 @@ const AddComponent = () => {
               required
               margin="normal"
               inputProps={{ min: 1, max: 12 }}
-              helperText="1-12"
+              helperText="1–12"
               sx={{ flex: 1 }}
             />
             <TextField
@@ -211,7 +240,7 @@ const AddComponent = () => {
               required
               margin="normal"
               inputProps={{ min: 2020, max: 2025 }}
-              helperText="2020-2025"
+              helperText="2020–2025"
               sx={{ flex: 1 }}
             />
           </Box>
@@ -226,7 +255,7 @@ const AddComponent = () => {
               required
               margin="normal"
               inputProps={{ min: 1, max: 12 }}
-              helperText="1-12"
+              helperText="1–12"
               sx={{ flex: 1 }}
             />
             <TextField
@@ -238,7 +267,7 @@ const AddComponent = () => {
               required
               margin="normal"
               inputProps={{ min: 2020, max: 2030 }}
-              helperText="2020-2030"
+              helperText="2020–2030"
               sx={{ flex: 1 }}
             />
           </Box>
@@ -275,7 +304,7 @@ const AddComponent = () => {
             margin="normal"
           />
 
-          <FormControl fullWidth margin="normal">
+          <FormControl fullWidth margin="normal" required>
             <InputLabel id="category-label">Category</InputLabel>
             <Select
               labelId="category-label"
@@ -283,7 +312,6 @@ const AddComponent = () => {
               value={form.category}
               label="Category"
               onChange={handleChange}
-              required
             >
               <MenuItem value="Tablets">Tablets</MenuItem>
               <MenuItem value="Capsules">Capsules</MenuItem>

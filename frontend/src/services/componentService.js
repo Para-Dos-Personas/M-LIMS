@@ -1,8 +1,8 @@
 // src/services/componentService.js
+
 import api from './api';
 
 const endpoint = '/api/components';
-const userServiceEndpoint = '/api/users';
 
 const componentService = {
   getAll: async (warehouseId = null) => {
@@ -11,45 +11,39 @@ const componentService = {
     if (warehouseId != null && warehouseId !== 'all') {
       params.warehouseId = warehouseId;
     }
-    const res = await api.get(endpoint, { params });
-    return res.data;
+    const { data } = await api.get(endpoint, { params });
+    return data;
   },
 
   getById: async (id) => {
-    const res = await api.get(`${endpoint}/${id}`);
-    return res.data;
+    const { data } = await api.get(`${endpoint}/${id}`);
+    return data;
   },
 
-  create: async (data) => {
-    const res = await api.post(endpoint, data);
-    return res.data;
+  create: async (component) => {
+    const { data } = await api.post(endpoint, component);
+    return data;
   },
 
-  update: async (id, data) => {
-    const res = await api.put(`${endpoint}/${id}`, data);
-    return res.data;
+  update: async (id, component) => {
+    const { data } = await api.put(`${endpoint}/${id}`, component);
+    return data;
   },
 
   delete: async (id) => {
-    const res = await api.delete(`${endpoint}/${id}`);
-    return res.data;
+    const { data } = await api.delete(`${endpoint}/${id}`);
+    return data;
   },
 
-  // Log operations
-  addLog: async (componentId, logData) => {
-    const res = await api.post(`${endpoint}/${componentId}/logs`, logData);
-    return res.data;
+  // Log movement for a component
+  logMovement: async (componentId, logData) => {
+    const { data } = await api.post(`${endpoint}/${componentId}/logs`, logData);
+    return data;
   },
 
   getLogs: async (componentId) => {
-    const res = await api.get(`${endpoint}/${componentId}/logs`);
-    return res.data;
-  },
-
-  // NEW FUNCTION: Get the warehouses a user is assigned to
-  getUserPermissions: async () => {
-    const res = await api.get(`${userServiceEndpoint}/warehouses`);
-    return res.data;
+    const { data } = await api.get(`${endpoint}/${componentId}/logs`);
+    return data;
   },
 };
 

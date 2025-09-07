@@ -4,7 +4,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, B
 import componentService from '../services/componentService';
 import LogModal from './LogModal';
 
-const ComponentTable = () => {
+const ComponentTable = ({ warehouseId }) => {
   const [components, setComponents] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [openModal, setOpenModal] = useState(false);
@@ -21,7 +21,7 @@ const ComponentTable = () => {
 
   const fetchComponents = async () => {
     try {
-      const data = await componentService.getAll();
+      const data = await componentService.getAll(warehouseId);
       setComponents(data);
     } catch (err) {
       console.error(err);
