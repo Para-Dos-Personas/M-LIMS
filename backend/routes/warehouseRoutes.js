@@ -1,35 +1,73 @@
 // routes/warehouseRoutes.js
+
 const express = require('express');
 const router = express.Router();
 const warehouseController = require('../controllers/warehouseController');
-const authenticateToken = require('../middleware/auth');
-const { requireRole } = require('../middleware/auth'); // Import the role checker
+const { authenticateToken, requireRole } = require('../middleware/auth');
 
 // === Admin Only Routes ===
 
-// @desc    Create a new warehouse
-// @route   POST /api/warehouses
-router.post('/', authenticateToken, requireRole(['Admin']), warehouseController.createWarehouse);
+// Create a new warehouse
+// POST /api/warehouses
+router.post(
+  '/',
+  authenticateToken,
+  requireRole(['Admin']),
+  warehouseController.createWarehouse
+);
 
-// @desc    Get all warehouses
-// @route   GET /api/warehouses
-router.get('/', authenticateToken, requireRole(['Admin']), warehouseController.getAllWarehouses);
+// Get all warehouses (w/ users)
+// GET /api/warehouses
+router.get(
+  '/',
+  authenticateToken,
+  requireRole(['Admin']),
+  warehouseController.getAllWarehouses
+);
 
-// @desc    Get a single warehouse by ID
-// @route   GET /api/warehouses/:id
-router.get('/:id', authenticateToken, requireRole(['Admin']), warehouseController.getWarehouseById);
+// Get all users assigned to a warehouse
+// GET /api/warehouses/:id/users
+router.get(
+  '/:id/users',
+  authenticateToken,
+  requireRole(['Admin']),
+  warehouseController.getWarehouseUsers
+);
 
-// @desc    Update a warehouse
-// @route   PUT /api/warehouses/:id
-router.put('/:id', authenticateToken, requireRole(['Admin']), warehouseController.updateWarehouse);
+// Get a single warehouse by ID (w/ users)
+// GET /api/warehouses/:id
+router.get(
+  '/:id',
+  authenticateToken,
+  requireRole(['Admin']),
+  warehouseController.getWarehouseById
+);
 
-// @desc    Delete a warehouse
-// @route   DELETE /api/warehouses/:id
-router.delete('/:id', authenticateToken, requireRole(['Admin']), warehouseController.deleteWarehouse);
+// Update a warehouse
+// PUT /api/warehouses/:id
+router.put(
+  '/:id',
+  authenticateToken,
+  requireRole(['Admin']),
+  warehouseController.updateWarehouse
+);
 
-// @desc    Assign a user to a warehouse
-// @route   POST /api/warehouses/:id/users
-router.post('/:id/users', authenticateToken, requireRole(['Admin']), warehouseController.assignUserToWarehouse);
+// Delete a warehouse
+// DELETE /api/warehouses/:id
+router.delete(
+  '/:id',
+  authenticateToken,
+  requireRole(['Admin']),
+  warehouseController.deleteWarehouse
+);
 
+// Assign a user to a warehouse
+// POST /api/warehouses/:id/users
+router.post(
+  '/:id/users',
+  authenticateToken,
+  requireRole(['Admin']),
+  warehouseController.assignUserToWarehouse
+);
 
 module.exports = router;

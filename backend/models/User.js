@@ -33,10 +33,12 @@ module.exports = (sequelize, DataTypes) => {
     // --- ADD THIS ASSOCIATION ---
     // A user can be assigned to many warehouses through the UserWarehouses table.
     User.belongsToMany(models.Warehouse, {
-      through: 'UserWarehouses', // This is the name of the junction table
+      through: models.UserWarehouse,
       foreignKey: 'userId',
+      otherKey: 'warehouseId',
       as: 'warehouses'
     });
+
     // --------------------------
   };
 

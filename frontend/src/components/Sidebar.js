@@ -1,31 +1,33 @@
-// src/components/Sidebar.js
-
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+
+import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
+import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import LogoutIcon from '@mui/icons-material/Logout';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import Divider from '@mui/material/Divider';
+
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import AddIcon from '@mui/icons-material/Add';
 import HistoryIcon from '@mui/icons-material/History';
 import PeopleIcon from '@mui/icons-material/People';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
+import LogoutIcon from '@mui/icons-material/Logout';
+
 import NotificationBell from './NotificationBell';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import WarehouseSwitcher from './WarehouseSwitcher';
 
 const Sidebar = ({ handleDrawerToggle }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width:768px)');
-  const user = JSON.parse(localStorage.getItem('User'));
+  const user = JSON.parse(localStorage.getItem('User') || 'null');
   const isAdmin = user?.role === 'Admin';
 
   const handleLogout = () => {
@@ -33,26 +35,27 @@ const Sidebar = ({ handleDrawerToggle }) => {
     localStorage.removeItem('User');
     localStorage.removeItem('selectedWarehouseId');
     navigate('/login');
-    if (isMobile) {
-      handleDrawerToggle();
-    }
+    if (isMobile) handleDrawerToggle();
   };
 
   const navItems = [
-    { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
-    { label: 'Inventory', path: '/inventory', icon: <InventoryIcon /> },
-    { label: 'Add Component', path: '/add-component', icon: <AddIcon /> },
-    { label: 'Logs', path: '/logs', icon: <HistoryIcon /> },
-    ...(isAdmin ? [{ label: 'Users', path: '/users', icon: <PeopleIcon /> }] : []),
-    { label: 'Notifications', path: '/notifications', icon: <NotificationsIcon /> },
+    { label: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+    { label: 'Inventory', icon: <InventoryIcon />, path: '/inventory' },
+    { label: 'Add Component', icon: <AddIcon />, path: '/add-component' },
+    { label: 'Logs', icon: <HistoryIcon />, path: '/logs' },
+    ...(isAdmin ? [{ label: 'Users', icon: <PeopleIcon />, path: '/users' }] : []),
+    { label: 'Notifications', icon: <NotificationsIcon />, path: '/notifications' },
+    ...(isAdmin
+      ? [{ label: 'Warehouses', icon: <WarehouseIcon />, path: '/warehouses' }]
+      : []),
   ];
 
   return (
     <>
       <Box sx={{ p: 3, borderBottom: '1px solid #ce93d8' }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-          <Box textAlign="center" flex={1}>
-            <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: '#4a148c' }}>
+          <Box flex={1} textAlign="center">
+            <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#4a148c' }}>
               LIMS
             </Typography>
             <Typography variant="body2" sx={{ color: '#6a1b9a' }}>
@@ -62,9 +65,9 @@ const Sidebar = ({ handleDrawerToggle }) => {
           <Box
             sx={{
               bgcolor: '#9c27b0',
-              borderRadius: '50%',
               width: 40,
               height: 40,
+              borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -77,13 +80,14 @@ const Sidebar = ({ handleDrawerToggle }) => {
         {user && (
           <Typography
             variant="caption"
-            sx={{ color: '#8e24aa', display: 'block', textAlign: 'center', mb: 2 }}
+            display="block"
+            textAlign="center"
+            sx={{ color: '#8e24aa', mb: 2 }}
           >
             Welcome, {user.username}
           </Typography>
         )}
 
-        {/* render switcher on desktop only */}
         {!isMobile && (
           <Box textAlign="center">
             <WarehouseSwitcher />
@@ -91,16 +95,17 @@ const Sidebar = ({ handleDrawerToggle }) => {
         )}
       </Box>
 
-      <Box role="presentation" sx={{ flexGrow: 1, py: 2 }}>
-        <List>
-          {navItems.map((item) => (
+      <List sx={{ flexGrow: 1, py: 2 }}>
+        {navItems.map((item) => {
+          const selected = location.pathname.startsWith(item.path);
+          return (
             <ListItem
               button
               key={item.label}
               component={Link}
               to={item.path}
-              selected={location.pathname === item.path}
-              onClick={isMobile ? handleDrawerToggle : null}
+              selected={selected}
+              onClick={isMobile ? handleDrawerToggle : undefined}
               sx={{
                 mx: 1,
                 mb: 0.5,
@@ -113,28 +118,25 @@ const Sidebar = ({ handleDrawerToggle }) => {
                 '&:hover': { backgroundColor: '#f3e5f5' },
               }}
             >
-              <ListItemIcon
-                sx={{
-                  color: location.pathname === item.path ? 'white' : 'inherit',
-                  minWidth: 40,
-                }}
-              >
+              <ListItemIcon sx={{ color: selected ? 'white' : 'inherit', minWidth: 40 }}>
                 {item.icon}
               </ListItemIcon>
               <ListItemText
                 primary={item.label}
                 sx={{
                   '& .MuiListItemText-primary': {
-                    fontWeight: location.pathname === item.path ? 'bold' : 'normal',
+                    fontWeight: selected ? 'bold' : 'normal',
                   },
                 }}
               />
             </ListItem>
-          ))}
-        </List>
-      </Box>
+          );
+        })}
+      </List>
 
-      <Box sx={{ p: 2, borderTop: '1px solid #ce93d8' }}>
+      <Divider />
+
+      <Box sx={{ p: 2 }}>
         <Button
           fullWidth
           variant="outlined"

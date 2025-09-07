@@ -5,59 +5,57 @@ import Box from '@mui/material/Box';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import MuiDrawer from '@mui/material/Drawer';
 import Toolbar from '@mui/material/Toolbar';
+
 import SidebarContent from './Sidebar';
-import Navbar from './Navbar'; // 1. Import your custom Navbar
+import Navbar from './Navbar';
 
 const drawerWidth = 250;
 
-const Main = styled('main')(({ theme, isMobile }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    marginLeft: isMobile ? 0 : `${drawerWidth-270}px`, // Corrected marginLeft for permanent drawer
-    transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-    }),
+// Prevent the `isMobile` prop from being passed to the DOM
+const Main = styled('main', {
+  shouldForwardProp: (prop) => prop !== 'isMobile',
+})(({ theme, isMobile }) => ({
+  flexGrow: 1,
+  padding: theme.spacing(3),
+  marginLeft: isMobile ? 0 : `${drawerWidth}px`,
+  transition: theme.transitions.create('margin', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
 }));
 
-const ProtectedLayout = () => {
-    const isMobile = useMediaQuery('(max-width:768px)');
-    const [drawerOpen, setDrawerOpen] = useState(false);
+export default function ProtectedLayout() {
+  const isMobile = useMediaQuery('(max-width:768px)');
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-    const handleDrawerToggle = () => {
-        setDrawerOpen(!drawerOpen);
-    };
+  const handleDrawerToggle = () => {
+    setDrawerOpen((open) => !open);
+  };
 
-    return (
-        <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-            {/* 2. Use your custom Navbar for the mobile header */}
-            {isMobile && <Navbar handleDrawerToggle={handleDrawerToggle} />}
+  return (
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      {isMobile && <Navbar handleDrawerToggle={handleDrawerToggle} />}
 
-            <MuiDrawer
-                sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    '& .MuiDrawer-paper': {
-                        width: drawerWidth,
-                        boxSizing: 'border-box',
-                    },
-                }}
-                variant={isMobile ? "temporary" : "permanent"}
-                anchor="left"
-                open={isMobile ? drawerOpen : true}
-                onClose={handleDrawerToggle}
-            >
-                {/* Pass the toggle handler to SidebarContent */}
-                <SidebarContent handleDrawerToggle={handleDrawerToggle} />
-            </MuiDrawer>
+      <MuiDrawer
+        variant={isMobile ? 'temporary' : 'permanent'}
+        open={isMobile ? drawerOpen : true}
+        onClose={handleDrawerToggle}
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
+      >
+        <SidebarContent handleDrawerToggle={handleDrawerToggle} />
+      </MuiDrawer>
 
-            <Main isMobile={isMobile}>
-                {/* This Toolbar adds spacing to push content below the fixed mobile navbar */}
-                {isMobile && <Toolbar />}
-                <Outlet />
-            </Main>
-        </Box>
-    );
-};
-
-export default ProtectedLayout;
+      <Main isMobile={isMobile}>
+        {isMobile && <Toolbar />}
+        <Outlet />
+      </Main>
+    </Box>
+  );
+}

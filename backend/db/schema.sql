@@ -634,3 +634,12 @@ ALTER TABLE ONLY public."Notifications"
 -- PostgreSQL database dump complete
 --
 
+CREATE TABLE IF NOT EXISTS UserWarehouses (
+  userId INT NOT NULL,
+  warehouseId INT NOT NULL,
+  PRIMARY KEY (userId, warehouseId),
+  FOREIGN KEY (userId) REFERENCES Users(id) ON DELETE CASCADE,
+  FOREIGN KEY (warehouseId) REFERENCES Warehouses(id) ON DELETE CASCADE,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

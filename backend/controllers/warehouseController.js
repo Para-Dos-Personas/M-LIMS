@@ -1,4 +1,5 @@
 // controllers/warehouseController.js
+
 const { Warehouse, User } = require('../models');
 
 // @desc    Create a new warehouse
@@ -10,34 +11,38 @@ exports.createWarehouse = async (req, res) => {
       return res.status(400).json({ error: 'Warehouse name is required.' });
     }
     const warehouse = await Warehouse.create({ name, location });
-    res.status(201).json(warehouse);
+    return res.status(201).json(warehouse);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create warehouse', details: error.message });
+    return res.status(500).json({ error: 'Failed to create warehouse', details: error.message });
   }
 };
 
-// @desc    Get all warehouses
+// @desc    Get all warehouses (with assigned users)
 // @route   GET /api/warehouses
 exports.getAllWarehouses = async (req, res) => {
   try {
-    const warehouses = await Warehouse.findAll();
-    res.status(200).json(warehouses);
+    const warehouses = await Warehouse.findAll({
+      include: [{ model: User, through: { attributes: [] } }],
+    });
+    return res.status(200).json(warehouses);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch warehouses', details: error.message });
+    return res.status(500).json({ error: 'Failed to fetch warehouses', details: error.message });
   }
 };
 
-// @desc    Get a single warehouse by ID
+// @desc    Get a single warehouse by ID (with assigned users)
 // @route   GET /api/warehouses/:id
 exports.getWarehouseById = async (req, res) => {
   try {
-    const warehouse = await Warehouse.findByPk(req.params.id);
+    const warehouse = await Warehouse.findByPk(req.params.id, {
+      include: [{ model: User, through: { attributes: [] } }],
+    });
     if (!warehouse) {
       return res.status(404).json({ error: 'Warehouse not found' });
     }
-    res.json(warehouse);
+    return res.json(warehouse);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch warehouse', details: error.message });
+    return res.status(500).json({ error: 'Failed to fetch warehouse', details: error.message });
   }
 };
 
@@ -49,10 +54,10 @@ exports.updateWarehouse = async (req, res) => {
     if (!warehouse) {
       return res.status(404).json({ error: 'Warehouse not found' });
     }
-    const updatedWarehouse = await warehouse.update(req.body);
-    res.json(updatedWarehouse);
+    const updated = await warehouse.update(req.body);
+    return res.json(updated);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update warehouse', details: error.message });
+    return res.status(500).json({ error: 'Failed to update warehouse', details: error.message });
   }
 };
 
@@ -65,9 +70,9 @@ exports.deleteWarehouse = async (req, res) => {
       return res.status(404).json({ error: 'Warehouse not found' });
     }
     await warehouse.destroy();
-    res.json({ message: 'Warehouse deleted successfully' });
+    return res.json({ message: 'Warehouse deleted successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete warehouse', details: error.message });
+    return res.status(500).json({ error: 'Failed to delete warehouse', details: error.message });
   }
 };
 
@@ -75,8 +80,8 @@ exports.deleteWarehouse = async (req, res) => {
 // @route   POST /api/warehouses/:id/users
 exports.assignUserToWarehouse = async (req, res) => {
   try {
-    const { userId } = req.body;
     const warehouseId = req.params.id;
+    const { userId } = req.body;
 
     const warehouse = await Warehouse.findByPk(warehouseId);
     if (!warehouse) {
@@ -88,11 +93,35 @@ exports.assignUserToWarehouse = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // This special method is created by Sequelize's belongsToMany association
-    await warehouse.addUser(user);
+    // Prevent duplicate assignment
+    const alreadyAssigned = await warehouse.hasUser(user);
+    if (alreadyAssigned) {
+      return res.status(400).json({ error: 'User already assigned to this warehouse' });
+    }
 
-    res.json({ message: `User '${user.username}' assigned to warehouse '${warehouse.name}'` });
+    await warehouse.addUser(user);
+    const updated = await Warehouse.findByPk(warehouseId, {
+      include: [{ model: User, through: { attributes: [] } }],
+    });
+
+    return res.json(updated);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to assign user', details: error.message });
+    return res.status(500).json({ error: 'Failed to assign user', details: error.message });
+  }
+};
+
+// @desc    Get all users assigned to a warehouse
+// @route   GET /api/warehouses/:id/users
+exports.getWarehouseUsers = async (req, res) => {
+  try {
+    const warehouse = await Warehouse.findByPk(req.params.id, {
+      include: [{ model: User, through: { attributes: [] } }],
+    });
+    if (!warehouse) {
+      return res.status(404).json({ error: 'Warehouse not found' });
+    }
+    return res.json(warehouse.Users);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to fetch users', details: error.message });
   }
 };
