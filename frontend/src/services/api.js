@@ -1,3 +1,5 @@
+// src/services/api.js
+
 import axios from 'axios';
 
 const api = axios.create({
@@ -7,12 +9,18 @@ const api = axios.create({
   },
 });
 
-
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  let token = localStorage.getItem('token') || '';
+
+  // strip existing "Bearer " prefix if present
+  if (token.startsWith('Bearer ')) {
+    token = token.slice(7);
+  }
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
