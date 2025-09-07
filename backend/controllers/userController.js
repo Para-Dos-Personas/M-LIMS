@@ -1,5 +1,5 @@
 // controllers/userController.js
-const { User } = require('../models');
+const { User, Warehouse } = require('../models'); // Ensure Warehouse is imported
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -18,7 +18,8 @@ exports.registerUser = async (req, res) => {
     const user = await User.create({
       username,
       password: hashedPassword,
-      role: role && req.user?.role === 'Admin' ? role : 'User', // Only an admin can set a role during registration
+      // Allow role assignment only if the request is made by an already authenticated admin
+      role: role && req.user?.role === 'Admin' ? role : 'User',
     });
 
     const { password: _, ...userWithoutPassword } = user.get({ plain: true });
@@ -104,7 +105,6 @@ exports.deleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    // Safety check: prevent admin from deleting their own account via this endpoint
     if (user.id === req.user.id) {
         return res.status(400).json({ error: "Admins cannot delete their own account."})
     }
@@ -115,3 +115,26 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ error: 'Failed to delete user' });
   }
 };
+
+// --- NEW FUNCTION ADDED ---
+// @desc    Get warehouses accessible by the logged-in user
+// @route   GET /api/users/warehouses
+exports.getAccessibleWarehouses = async (req, res) => {
+    try {
+      const user = req.user; // User is attached from the auth middleware
+      let warehouses;
+  
+      if (user.role === 'Admin') {
+        // Admin gets all warehouses
+        warehouses = await Warehouse.findAll({ order: [['name', 'ASC']] });
+      } else {
+        // Regular user gets only their assigned warehouses
+        // 'getWarehouses' is a special method added by Sequelize's association
+        warehouses = await user.getWarehouses({ order: [['name', 'ASC']] });
+      }
+  
+      res.json(warehouses);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch user warehouses', details: error.message });
+    }
+  };

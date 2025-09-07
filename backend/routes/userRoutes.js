@@ -12,10 +12,14 @@ router.post('/login', userController.loginUser);
 // == AUTHENTICATED USER ROUTES ==
 router.get('/profile', authenticateToken, userController.getUserProfile);
 
+// --- ADD THIS LINE ---
+// Get all warehouses the current user has access to
+router.get('/warehouses', authenticateToken, userController.getAccessibleWarehouses);
+// ---------------------
+
 // == ADMIN ONLY ROUTES ==
 router.get('/', authenticateToken, requireRole(['Admin']), userController.getAllUsers);
 router.put('/:id/role', authenticateToken, requireRole(['Admin']), userController.updateUserRole);
 router.delete('/:id', authenticateToken, requireRole(['Admin']), userController.deleteUser);
-
 
 module.exports = router;
