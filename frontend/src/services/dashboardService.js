@@ -9,6 +9,10 @@ const dashboardService = {
     const res = await api.get(`/api/dashboard/inward?month=${month}`);
     return res.data;
   },
+  getAllComponents: async () => {
+    const res = await api.get('/api/components');
+    return res.data;
+  },
 
   getOutwardStats: async (month = null) => {
     if (!month) {

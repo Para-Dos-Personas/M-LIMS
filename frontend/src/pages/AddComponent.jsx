@@ -30,6 +30,10 @@ const AddComponent = () => {
     datasheetLink: '',
     category: '',
     criticalThreshold: '10',
+    manufactureMonth: '',
+    manufactureYear: '',
+    expiryMonth: '',
+    expiryYear: '',
   });
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -142,6 +146,60 @@ const AddComponent = () => {
             fullWidth
             margin="normal"
           />
+
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <TextField
+              label="Manufacture Month"
+              name="manufactureMonth"
+              type="number"
+              value={form.manufactureMonth}
+              onChange={handleChange}
+              required
+              margin="normal"
+              inputProps={{ min: 1, max: 12 }}
+              helperText="1-12"
+              sx={{ flex: 1 }}
+            />
+            <TextField
+              label="Manufacture Year"
+              name="manufactureYear"
+              type="number"
+              value={form.manufactureYear}
+              onChange={handleChange}
+              required
+              margin="normal"
+              inputProps={{ min: 2020, max: 2025 }}
+              helperText="2020-2025"
+              sx={{ flex: 1 }}
+            />
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <TextField
+              label="Expiry Month"
+              name="expiryMonth"
+              type="number"
+              value={form.expiryMonth}
+              onChange={handleChange}
+              required
+              margin="normal"
+              inputProps={{ min: 1, max: 12 }}
+              helperText="1-12"
+              sx={{ flex: 1 }}
+            />
+            <TextField
+              label="Expiry Year"
+              name="expiryYear"
+              type="number"
+              value={form.expiryYear}
+              onChange={handleChange}
+              required
+              margin="normal"
+              inputProps={{ min: 2020, max: 2030 }}
+              helperText="2020-2030"
+              sx={{ flex: 1 }}
+            />
+          </Box>
 
           <TextField
             label="Critical Threshold"

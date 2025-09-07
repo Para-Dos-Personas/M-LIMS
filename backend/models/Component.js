@@ -14,7 +14,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       defaultValue: 10,
       allowNull: false
-    }
+    },
+    manufactureDate: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
+    expiryDate: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
   });
 
   Component.associate = models => {

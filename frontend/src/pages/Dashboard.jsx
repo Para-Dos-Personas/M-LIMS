@@ -6,12 +6,14 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import WarningIcon from '@mui/icons-material/Warning';
 import HistoryIcon from '@mui/icons-material/History';
+import DangerousIcon from '@mui/icons-material/Dangerous';
 
 const Dashboard = () => {
   const [inwardData, setInwardData] = useState([]);
   const [outwardData, setOutwardData] = useState([]);
   const [lowStock, setLowStock] = useState([]);
   const [oldStock, setOldStock] = useState([]);
+  const [expiredStock, setExpiredStock] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -41,25 +43,53 @@ const Dashboard = () => {
       .sort((a, b) => a.component.localeCompare(b.component));
   };
 
+  // Helper function to check if item is old stock (manufacture date + 1 year < today)
+  const isOldStock = (item) => {
+    if (!item.manufactureDate) return false;
+    
+    const manufactureDate = new Date(item.manufactureDate);
+    const oneYearAfterManufacture = new Date(manufactureDate);
+    oneYearAfterManufacture.setFullYear(manufactureDate.getFullYear() + 1);
+    
+    return oneYearAfterManufacture < new Date();
+  };
+
+  // Helper function to check if item is expired (expiry date < today)
+  const isExpired = (item) => {
+    if (!item.expiryDate) return false;
+    
+    const expiryDate = new Date(item.expiryDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to compare only dates
+    
+    return expiryDate < today;
+  };
+
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
         setLoading(true);
-        const [inwardResponse, outwardResponse, low, old] = await Promise.all([
+        const [inwardResponse, outwardResponse, low, old, allComponents] = await Promise.all([
           dashboardService.getInwardStats(),
           dashboardService.getOutwardStats(),
           dashboardService.getLowStock(),
           dashboardService.getOldStock(),
+          dashboardService.getAllComponents(), // Assuming this method exists to get all components
         ]);
 
         // Process chart data with grouping and sorting
         const inwardChartData = processChartData(inwardResponse.logs);
         const outwardChartData = processChartData(outwardResponse.logs);
 
+        // Filter components for old stock and expired stock
+        const oldStockItems = Array.isArray(allComponents) ? allComponents.filter(isOldStock) : [];
+        const expiredStockItems = Array.isArray(allComponents) ? allComponents.filter(isExpired) : [];
+
         setInwardData(inwardChartData);
         setOutwardData(outwardChartData);
         setLowStock(Array.isArray(low) ? low : []);
-        setOldStock(Array.isArray(old) ? old : []);
+        setOldStock(oldStockItems);
+        setExpiredStock(expiredStockItems);
         setError(null);
       } catch (err) {
         console.error('❌ Error fetching dashboard data:', err);
@@ -68,6 +98,7 @@ const Dashboard = () => {
         setOutwardData([]);
         setLowStock([]);
         setOldStock([]);
+        setExpiredStock([]);
       } finally {
         setLoading(false);
       }
@@ -111,6 +142,7 @@ const Dashboard = () => {
       filter: 'none !important',
     }
   };
+  
   const scrollableChartBox = {
     width: '100%',
     overflowX: 'auto',
@@ -321,7 +353,7 @@ const Dashboard = () => {
                   No old stock items found.
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Items older than 6 months are considered old stock.
+                  Items older than 1 year from manufacture date are considered old stock.
                 </Typography>
               </Box>
             ) : (
@@ -332,8 +364,49 @@ const Dashboard = () => {
                       {item.name}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Added: {new Date(item.createdAt).toLocaleDateString()} |
+                      Manufactured: {new Date(item.manufactureDate).toLocaleDateString()} |
                       Qty: {item.quantity} | Location: {item.location}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            )}
+          </Paper>
+        </Grid>
+
+        {/* Expired Stock */}
+        <Grid item xs={12} md={6}>
+          <Paper elevation={6} sx={cardStyle('linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%)')}>
+            <Box display="flex" alignItems="center" mb={2}>
+              <DangerousIcon sx={{ mr: 1, color: '#c62828' }} />
+              <Typography variant="h6" sx={{ fontWeight: 600, color: '#b71c1c' }}>
+                Expired Stock ({expiredStock.length} items)
+              </Typography>
+            </Box>
+            {expiredStock.length === 0 ? (
+              <Box textAlign="center" py={2}>
+                <Typography variant="body2" color="text.secondary">
+                  No expired items found.
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Items past their expiry date are considered expired stock.
+                </Typography>
+              </Box>
+            ) : (
+              <Box>
+                {expiredStock.map((item) => (
+                  <Box key={item.id} sx={{ mb: 2, p: 2, bgcolor: 'rgba(255,255,255,0.8)', borderRadius: 2, border: '2px solid #ffcdd2' }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                      <Typography variant="body1" fontWeight="medium" color="error.main">
+                        {item.name}
+                      </Typography>
+                      <Typography variant="body2" fontWeight="bold" color="error.main">
+                        {item.quantity} units
+                      </Typography>
+                    </Box>
+                    <Typography variant="caption" color="error.dark">
+                      Expired: {new Date(item.expiryDate).toLocaleDateString()} |
+                      Location: {item.location} | Part: {item.partNumber}
                     </Typography>
                   </Box>
                 ))}
