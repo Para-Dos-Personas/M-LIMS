@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Component, ComponentLog } = require('../models');
-const { authenticateToken } = require('../middleware/auth');
+const  authenticateToken  = require('../middleware/auth');
 const { Op } = require('sequelize');
 const sequelize = require('../config/db');
 
