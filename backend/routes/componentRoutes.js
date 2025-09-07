@@ -1,7 +1,11 @@
+// routes/componentRoutes.js
 const express = require('express');
 const router = express.Router();
 const componentController = require('../controllers/componentController');
-const { authenticateToken } = require('../middleware/auth');
+
+// --- THIS IS THE CORRECTED LINE ---
+const authenticateToken = require('../middleware/auth'); 
+// ---------------------------------
 
 // Apply authentication to all component routes
 router.use(authenticateToken);
