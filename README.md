@@ -2,7 +2,7 @@
 
 # LIMS Inventory Manager
 
-# IT IS CURRENTLY ONLINE IN THIS WEBSITE - https://lims-inventory-manager.vercel.app/
+# IT IS CURRENTLY ONLINE IN THIS WEBSITE - https://m-lims.vercel.app/
 
 **A comprehensive Laboratory Information Management System for efficient inventory tracking and management**
 
