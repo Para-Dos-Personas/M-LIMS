@@ -1,5 +1,4 @@
 // controllers/warehouseController.js
-
 const { Warehouse, User } = require('../models');
 
 // @desc    Create a new warehouse
@@ -22,7 +21,7 @@ exports.createWarehouse = async (req, res) => {
 exports.getAllWarehouses = async (req, res) => {
   try {
     const warehouses = await Warehouse.findAll({
-      include: [{ model: User, through: { attributes: [] } }],
+      include: [{ model: User, as: 'Users', through: { attributes: [] } }],
     });
     return res.status(200).json(warehouses);
   } catch (error) {
@@ -35,7 +34,7 @@ exports.getAllWarehouses = async (req, res) => {
 exports.getWarehouseById = async (req, res) => {
   try {
     const warehouse = await Warehouse.findByPk(req.params.id, {
-      include: [{ model: User, through: { attributes: [] } }],
+      include: [{ model: User, as: 'Users', through: { attributes: [] } }],
     });
     if (!warehouse) {
       return res.status(404).json({ error: 'Warehouse not found' });
@@ -101,7 +100,7 @@ exports.assignUserToWarehouse = async (req, res) => {
 
     await warehouse.addUser(user);
     const updated = await Warehouse.findByPk(warehouseId, {
-      include: [{ model: User, through: { attributes: [] } }],
+      include: [{ model: User, as: 'Users', through: { attributes: [] } }],
     });
 
     return res.json(updated);
@@ -115,7 +114,7 @@ exports.assignUserToWarehouse = async (req, res) => {
 exports.getWarehouseUsers = async (req, res) => {
   try {
     const warehouse = await Warehouse.findByPk(req.params.id, {
-      include: [{ model: User, through: { attributes: [] } }],
+      include: [{ model: User, as: 'Users', through: { attributes: [] } }],
     });
     if (!warehouse) {
       return res.status(404).json({ error: 'Warehouse not found' });

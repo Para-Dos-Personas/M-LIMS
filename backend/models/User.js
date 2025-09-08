@@ -1,21 +1,16 @@
 // models/User.js
-
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     username: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
-      validate: {
-        notEmpty: true
-      }
+      validate: { notEmpty: true }
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        notEmpty: true
-      }
+      validate: { notEmpty: true }
     },
     role: {
       type: DataTypes.ENUM('Admin', 'User'),
@@ -24,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   });
 
-  User.associate = (models) => {
+  User.associate = models => {
     // A user can create many component logs
     User.hasMany(models.ComponentLog, {
       foreignKey: 'userId',
@@ -32,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE'
     });
 
-    // A user can be assigned to many warehouses through the join table UserWarehouses
+    // A user can be assigned to many warehouses through the join table UserWarehouse
     User.belongsToMany(models.Warehouse, {
       through: models.UserWarehouse,
       foreignKey: 'userId',

@@ -1,11 +1,13 @@
 // src/pages/WarehouseManagement.jsx
 import React, { useState, useEffect } from 'react';
 import {
-  fetchWarehouses,
+  getAllWarehouses,
+  getMyWarehouses,
   createWarehouse,
   updateWarehouse,
   deleteWarehouse
 } from '../services/warehouseService';
+import auth from '../utils/auth';
 import {
   Box,
   Button,
@@ -30,10 +32,19 @@ export default function WarehouseManagement() {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ name: '', location: '' });
 
+  const isAdmin = auth.getUser()?.role === 'Admin';
+
   // load list
   const load = async () => {
-    const res = await fetchWarehouses();
-    setWarehouses(res.data);
+    try {
+      const res = isAdmin
+        ? await getAllWarehouses()
+        : await getMyWarehouses();
+      setWarehouses(res.data);
+    } catch (err) {
+      console.error('Failed to load warehouses', err);
+      setWarehouses([]);
+    }
   };
 
   useEffect(() => {
@@ -79,16 +90,18 @@ export default function WarehouseManagement() {
         Warehouse Management
       </Typography>
 
-      <Button variant="contained" onClick={onAdd} sx={{ mb: 2 }}>
-        Add Warehouse
-      </Button>
+      {isAdmin && (
+        <Button variant="contained" onClick={onAdd} sx={{ mb: 2 }}>
+          Add Warehouse
+        </Button>
+      )}
 
       <Table>
         <TableHead>
           <TableRow>
             <TableCell>Name</TableCell>
             <TableCell>Location</TableCell>
-            <TableCell align="right">Actions</TableCell>
+            {isAdmin && <TableCell align="right">Actions</TableCell>}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -96,21 +109,20 @@ export default function WarehouseManagement() {
             <TableRow key={wh.id}>
               <TableCell>{wh.name}</TableCell>
               <TableCell>{wh.location}</TableCell>
-              <TableCell align="right">
-                <IconButton
-                  size="small"
-                  onClick={() => onEdit(wh)}
-                >
-                  <Edit fontSize="small" />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  color="error"
-                  onClick={() => onDelete(wh.id)}
-                >
-                  <Delete fontSize="small" />
-                </IconButton>
-              </TableCell>
+              {isAdmin && (
+                <TableCell align="right">
+                  <IconButton size="small" onClick={() => onEdit(wh)}>
+                    <Edit fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => onDelete(wh.id)}
+                  >
+                    <Delete fontSize="small" />
+                  </IconButton>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

@@ -1,45 +1,38 @@
 // src/services/warehouseService.js
-import api from './api'; // Use the centralized api instance instead of creating a new one
+import api from './api';
 
 // fetch all warehouses (admin only)
-export async function fetchWarehouses() {
-  const response = await api.get('/api/warehouses');
-  return response;
+export async function getAllWarehouses() {
+  return api.get('/api/warehouses');
 }
 
 // fetch warehouses accessible to current user
 export async function getMyWarehouses() {
-  const response = await api.get('/api/users/warehouses');
-  return response;
+  return api.get('/api/users/warehouses');
 }
 
 // fetch one warehouse by id
 export async function fetchWarehouseById(id) {
-  const response = await api.get(`/api/warehouses/${id}`);
-  return response;
+  return api.get(`/api/warehouses/${id}`);
 }
 
 // create a new warehouse
 export async function createWarehouse(payload) {
-  const response = await api.post('/api/warehouses', payload);
-  return response;
+  return api.post('/api/warehouses', payload);
 }
 
 // update an existing warehouse
 export async function updateWarehouse(id, payload) {
-  const response = await api.put(`/api/warehouses/${id}`, payload);
-  return response;
+  return api.put(`/api/warehouses/${id}`, payload);
 }
 
 // delete a warehouse
 export async function deleteWarehouse(id) {
-  const response = await api.delete(`/api/warehouses/${id}`);
-  return response;
+  return api.delete(`/api/warehouses/${id}`);
 }
 
-// default export
 export default {
-  fetchWarehouses,
+  getAllWarehouses,
   getMyWarehouses,
   fetchWarehouseById,
   createWarehouse,
