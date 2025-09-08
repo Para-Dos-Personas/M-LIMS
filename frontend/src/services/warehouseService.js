@@ -1,22 +1,5 @@
 // src/services/warehouseService.js
-import axios from 'axios';
-
-// Configure axios base URL - adjust this to match your backend
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-
-// Create axios instance with base URL and auth header
-const api = axios.create({
-  baseURL: API_BASE,
-});
-
-// Add auth token to requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+import api from './api'; // Use the centralized api instance instead of creating a new one
 
 // fetch all warehouses (admin only)
 export async function fetchWarehouses() {
