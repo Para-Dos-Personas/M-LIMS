@@ -8,21 +8,19 @@ const { User } = require('../models');
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Expects "Bearer TOKEN"
-
+  
   if (!token) {
     return res.status(401).json({ error: 'Access token required' });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
     // Load user by PK. Make sure your User model includes
     // a `warehouses` array or association if you plan to use it later.
     const user = await User.findByPk(decoded.id);
     if (!user) {
       return res.status(401).json({ error: 'User not found, invalid token' });
     }
-
     req.user = user;
     next();
   } catch (error) {
@@ -60,19 +58,17 @@ const checkWarehousePermission = (req, res, next) => {
 
   // Ensure user.warehouses is an array of IDs you populated at login
   const allowed = user.warehouses || [];
-
   if (!allowed.includes(targetWarehouseId)) {
     return res
       .status(403)
       .json({ error: 'Forbidden: no access to this warehouse' });
   }
-
   next();
 };
 
-// Default export is the main auth function
-module.exports = authenticateToken;
-
-// Attach helpers
-module.exports.requireRole = requireRole;
-module.exports.checkWarehousePermission = checkWarehousePermission;
+// Export all functions using object syntax for destructuring
+module.exports = {
+  authenticateToken,
+  requireRole,
+  checkWarehousePermission
+};

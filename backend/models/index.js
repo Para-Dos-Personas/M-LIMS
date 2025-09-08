@@ -30,43 +30,20 @@ const sequelize = process.env.DATABASE_URL
 fs.readdirSync(__dirname)
   .filter(file => file !== 'index.js' && file.endsWith('.js'))
   .forEach(file => {
-    console.log(`Loading model file: ${file}`);
-    try {
-      const modelFunction = require(path.join(__dirname, file));
-      console.log(`Model function type for ${file}:`, typeof modelFunction);
-      
-      if (typeof modelFunction !== 'function') {
-        console.error(`ERROR: ${file} does not export a function!`);
-        console.error(`It exports:`, modelFunction);
-        throw new Error(`Model file ${file} must export a function`);
-      }
-      
-      const model = modelFunction(sequelize, Sequelize.DataTypes);
-      console.log(`Successfully loaded model: ${model.name}`);
-      db[model.name] = model;
-    } catch (error) {
-      console.error(`Error loading ${file}:`, error.message);
-      throw error;
-    }
+    const model = require(path.join(__dirname, file))(
+      sequelize,
+      Sequelize.DataTypes
+    );
+    db[model.name] = model;
   });
 
 // 3. Run .associate() on each model, if defined
 Object.values(db)
   .filter(model => typeof model.associate === 'function')
-  .forEach(model => {
-    console.log(`Running associations for: ${model.name}`);
-    try {
-      model.associate(db);
-    } catch (error) {
-      console.error(`Error in associations for ${model.name}:`, error.message);
-      throw error;
-    }
-  });
+  .forEach(model => model.associate(db));
 
 // 4. Attach Sequelize instances to our `db` object
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
-
-console.log('All models loaded successfully:', Object.keys(db));
 
 module.exports = db;

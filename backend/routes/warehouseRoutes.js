@@ -1,14 +1,12 @@
 // routes/warehouseRoutes.js
+
 const express = require('express');
 const router = express.Router();
 const warehouseController = require('../controllers/warehouseController');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 
-// Debug logging
-console.log('Warehouse controller functions:', Object.keys(warehouseController));
-console.log('createWarehouse type:', typeof warehouseController.createWarehouse);
-
 // === Admin Only Routes ===
+
 // Create a new warehouse
 // POST /api/warehouses
 router.post(
