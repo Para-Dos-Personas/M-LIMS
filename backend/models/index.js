@@ -1,47 +1,43 @@
 // backend/models/index.js
-
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
-const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const config = require(path.join(__dirname, '../config/db.config.js'))[env];
+require('dotenv').config();
+
 const db = {};
 
-let sequelize;
-if (config.use_env_variable) {
-  // e.g. set in .env: USE_ENV_DB=DATABASE_URL
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
-} else {
-  sequelize = new Sequelize(
-    config.database,
-    config.username,
-    config.password,
-    config
-  );
-}
-
-// Import every model file in this directory
-fs.readdirSync(__dirname)
-  .filter((file) => {
-    return (
-      file.indexOf('.') !== 0 &&
-      file !== basename &&
-      file.slice(-3) === '.js'
+// If you have a full DB URL (e.g. PostgreSQL on Render)
+const sequelize = process.env.DATABASE_URL
+  ? new Sequelize(process.env.DATABASE_URL, {
+      dialect: 'postgres',
+      protocol: 'postgres',
+      dialectOptions: {
+        ssl: { require: true, rejectUnauthorized: false }
+      }
+    })
+  : new Sequelize(
+      process.env.DB_NAME,
+      process.env.DB_USER,
+      process.env.DB_PASS,
+      {
+        host: process.env.DB_HOST,
+        dialect: process.env.DB_DIALECT || 'postgres'
+      }
     );
-  })
-  .forEach((file) => {
-    const modelFactory = require(path.join(__dirname, file));
-    const model = modelFactory(sequelize, Sequelize.DataTypes);
+
+// Auto-load all model files
+fs
+  .readdirSync(__dirname)
+  .filter(f => f !== 'index.js' && f.endsWith('.js'))
+  .forEach(file => {
+    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
   });
 
-// Invoke associations (if defined)
-Object.keys(db).forEach((modelName) => {
-  if (typeof db[modelName].associate === 'function') {
-    db[modelName].associate(db);
-  }
-});
+// Run associations
+Object.values(db)
+  .filter(m => typeof m.associate === 'function')
+  .forEach(m => m.associate(db));
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
