@@ -14,18 +14,18 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Warehouse.associate = models => {
-        // A warehouse can have many users through the join table
+        // A warehouse can have many users through the join table UserWarehouse
         Warehouse.belongsToMany(models.User, {
             through: models.UserWarehouse,
             foreignKey: 'warehouseId',
             otherKey: 'userId',
-            as: 'users'
+            as: 'Users'  // Important: capital 'U' to match controller expectation
         });
 
-        // A warehouse can have many components (changed from 'Item' to 'Component')
+        // A warehouse can have many components
         Warehouse.hasMany(models.Component, {
             foreignKey: 'warehouseId',
-            as: 'components'  // Changed from 'items' to 'components' for clarity
+            as: 'components'
         });
     };
 
