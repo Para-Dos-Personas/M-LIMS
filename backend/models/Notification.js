@@ -3,18 +3,15 @@ module.exports = (sequelize, DataTypes) => {
   const Notification = sequelize.define("Notification", {
     type: {
       type: DataTypes.ENUM('low_stock', 'old_stock'),
-      allowNull: false,
-      comment: 'Type of notification: low_stock or old_stock'
+      allowNull: false
     },
     title: {
       type: DataTypes.STRING,
-      allowNull: false,
-      comment: 'Notification title'
+      allowNull: false
     },
     message: {
       type: DataTypes.TEXT,
-      allowNull: false,
-      comment: 'Detailed notification message'
+      allowNull: false
     },
     componentId: {
       type: DataTypes.INTEGER,
@@ -22,8 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Components',
         key: 'id'
-      },
-      comment: 'Related component ID if applicable'
+      }
     },
     userId: {
       type: DataTypes.INTEGER,
@@ -31,28 +27,23 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Users',
         key: 'id'
-      },
-      comment: 'Target user ID, null for all users'
+      }
     },
     severity: {
       type: DataTypes.ENUM('low', 'medium', 'high', 'critical'),
-      defaultValue: 'medium',
-      comment: 'Notification severity level'
+      defaultValue: 'medium'
     },
     isRead: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
-      comment: 'Whether the notification has been read'
+      defaultValue: false
     },
     isEmailSent: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
-      comment: 'Whether email notification has been sent'
+      defaultValue: false
     },
     metadata: {
       type: DataTypes.JSON,
-      allowNull: true,
-      comment: 'Additional metadata like component details, quantities, etc.'
+      allowNull: true
     }
   });
 
