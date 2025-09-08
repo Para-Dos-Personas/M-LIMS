@@ -1,27 +1,41 @@
-import api from './api';
+// src/services/warehouseService.js
+import axios from 'axios';
 
-// This function now correctly calls the endpoint that gets the warehouses for the logged-in user.
-const getMyWarehouses = () => {
-  return api.get('/api/users/warehouses'); // <-- This URL is now correct.
-};
-
-const getAllWarehouses = () => {
-  return api.get('/api/warehouses');
+// fetch all warehouses
+export async function fetchWarehouses() {
+  const response = await axios.get('/api/warehouses');
+  return response.data;
 }
 
-// Admin functions for managing user assignments
-const getUserWarehouses = (userId) => {
-    return api.get(`/api/users/${userId}/warehouses`);
-};
+// fetch one warehouse by id
+export async function fetchWarehouseById(id) {
+  const response = await axios.get(`/api/warehouses/${id}`);
+  return response.data;
+}
 
-const updateUserWarehouses = (userId, warehouseIds) => {
-    return api.put(`/api/users/${userId}/warehouses`, { warehouseIds });
-};
+// create a new warehouse
+export async function createWarehouse(payload) {
+  const response = await axios.post('/api/warehouses', payload);
+  return response.data;
+}
 
+// update an existing warehouse
+export async function updateWarehouse(id, payload) {
+  const response = await axios.put(`/api/warehouses/${id}`, payload);
+  return response.data;
+}
+
+// delete a warehouse
+export async function deleteWarehouse(id) {
+  const response = await axios.delete(`/api/warehouses/${id}`);
+  return response.data;
+}
+
+// default export (optional)
 export default {
-  getMyWarehouses,
-  getAllWarehouses,
-  getUserWarehouses,
-  updateUserWarehouses,
+  fetchWarehouses,
+  fetchWarehouseById,
+  createWarehouse,
+  updateWarehouse,
+  deleteWarehouse
 };
-
