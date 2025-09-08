@@ -19,6 +19,8 @@ import dashboardService from '../services/dashboardService';
 import { useWarehouse } from '../contexts/WarehouseContext';
 
 const Dashboard = () => {
+  const MAX_DISPLAY = 5;
+
   const [dashboardData, setDashboardData] = useState({
     inward: [], outward: [], lowStock: [], oldStock: [], expiredStock: []
   });
@@ -69,8 +71,11 @@ const Dashboard = () => {
   });
 
   const scrollableChartBox = {
-    width: '100%', overflowX: 'auto', overflowY: 'hidden',
-    scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' }
+    width: '100%',
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': { display: 'none' }
   };
 
   const chartStyles = {
@@ -168,7 +173,7 @@ const Dashboard = () => {
               </Typography>
             </Box>
             {dashboardData.inward.length > 0 ? (
-              dashboardData.inward.length > 9 ? (
+              dashboardData.inward.length > MAX_DISPLAY ? (
                 <Box sx={scrollableChartBox}>
                   <Box sx={{ minWidth: `${dashboardData.inward.length * 80}px`, height: 250 }}>
                     <BarChart
@@ -229,7 +234,7 @@ const Dashboard = () => {
               </Typography>
             </Box>
             {dashboardData.outward.length > 0 ? (
-              dashboardData.outward.length > 9 ? (
+              dashboardData.outward.length > MAX_DISPLAY ? (
                 <Box sx={scrollableChartBox}>
                   <Box sx={{ minWidth: `${dashboardData.outward.length * 80}px`, height: 250 }}>
                     <BarChart
@@ -265,7 +270,7 @@ const Dashboard = () => {
                         height={60}
                       />
                       <YAxis allowDecimals={false} />
-                      <Tooltip cursor={false} />
+                      <Tooltip />
                       <Legend />
                       <Bar dataKey="quantity" fill="#ef5350" radius={[8, 8, 0, 0]} />
                     </BarChart>
@@ -299,7 +304,7 @@ const Dashboard = () => {
                 </Typography>
               </Box>
             ) : (
-              <Box>
+              <Box sx={{ maxHeight: 300, overflowY: 'auto' }}>
                 {dashboardData.lowStock.map(item => (
                   <Box
                     key={item.id}
@@ -358,7 +363,7 @@ const Dashboard = () => {
                 </Typography>
               </Box>
             ) : (
-              <Box>
+              <Box sx={{ maxHeight: 300, overflowY: 'auto' }}>
                 {dashboardData.oldStock.map(item => (
                   <Box
                     key={item.id}
@@ -396,7 +401,7 @@ const Dashboard = () => {
                 </Typography>
               </Box>
             ) : (
-              <Box>
+              <Box sx={{ maxHeight: 300, overflowY: 'auto' }}>
                 {dashboardData.expiredStock.map(item => (
                   <Box
                     key={item.id}
