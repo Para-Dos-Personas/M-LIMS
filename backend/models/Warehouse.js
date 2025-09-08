@@ -1,4 +1,5 @@
 // backend/models/Warehouse.js
+
 module.exports = (sequelize, DataTypes) => {
     const Warehouse = sequelize.define("Warehouse", {
         name: {
@@ -13,16 +14,18 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Warehouse.associate = models => {
-        // A warehouse can have many components
+        // A warehouse can have many users through the join table
         Warehouse.belongsToMany(models.User, {
             through: models.UserWarehouse,
             foreignKey: 'warehouseId',
             otherKey: 'userId',
             as: 'users'
         });
-        Warehouse.hasMany(models.Item, {
+
+        // A warehouse can have many components (changed from 'Item' to 'Component')
+        Warehouse.hasMany(models.Component, {
             foreignKey: 'warehouseId',
-            as: 'items'
+            as: 'components'  // Changed from 'items' to 'components' for clarity
         });
     };
 
