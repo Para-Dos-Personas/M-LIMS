@@ -1,43 +1,9 @@
-// controllers/warehouseController.js - DEBUG VERSION
-// Temporarily simplify to isolate the issue
+// controllers/warehouseController.js
 
 const { Warehouse, User } = require('../models');
 
-// @desc    Get all warehouses (simplified for debugging)
-// @route   GET /api/warehouses
-exports.getAllWarehouses = async (req, res) => {
-  try {
-    console.log('DEBUG: Starting getAllWarehouses');
-    
-    // First, try without include to see if basic query works
-    const warehouses = await Warehouse.findAll();
-    console.log('DEBUG: Basic query successful, found:', warehouses.length, 'warehouses');
-    
-    return res.status(200).json(warehouses);
-    
-    // If basic query works, uncomment this to test with include:
-    /*
-    const warehousesWithUsers = await Warehouse.findAll({
-      include: [{ 
-        model: User, 
-        through: { attributes: [] } 
-      }],
-    });
-    console.log('DEBUG: Query with users successful');
-    return res.status(200).json(warehousesWithUsers);
-    */
-    
-  } catch (error) {
-    console.error('DEBUG: Error in getAllWarehouses:', error);
-    return res.status(500).json({ 
-      error: 'Failed to fetch warehouses', 
-      details: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
-  }
-};
-
-// Keep other methods as they were...
+// @desc    Create a new warehouse
+// @route   POST /api/warehouses
 exports.createWarehouse = async (req, res) => {
   try {
     const { name, location } = req.body;
@@ -47,7 +13,115 @@ exports.createWarehouse = async (req, res) => {
     const warehouse = await Warehouse.create({ name, location });
     return res.status(201).json(warehouse);
   } catch (error) {
-    console.error('DEBUG: Error in createWarehouse:', error);
     return res.status(500).json({ error: 'Failed to create warehouse', details: error.message });
+  }
+};
+
+// @desc    Get all warehouses (with assigned users)
+// @route   GET /api/warehouses
+exports.getAllWarehouses = async (req, res) => {
+  try {
+    const warehouses = await Warehouse.findAll({
+      include: [{ model: User, through: { attributes: [] } }],
+    });
+    return res.status(200).json(warehouses);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to fetch warehouses', details: error.message });
+  }
+};
+
+// @desc    Get a single warehouse by ID (with assigned users)
+// @route   GET /api/warehouses/:id
+exports.getWarehouseById = async (req, res) => {
+  try {
+    const warehouse = await Warehouse.findByPk(req.params.id, {
+      include: [{ model: User, through: { attributes: [] } }],
+    });
+    if (!warehouse) {
+      return res.status(404).json({ error: 'Warehouse not found' });
+    }
+    return res.json(warehouse);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to fetch warehouse', details: error.message });
+  }
+};
+
+// @desc    Update a warehouse
+// @route   PUT /api/warehouses/:id
+exports.updateWarehouse = async (req, res) => {
+  try {
+    const warehouse = await Warehouse.findByPk(req.params.id);
+    if (!warehouse) {
+      return res.status(404).json({ error: 'Warehouse not found' });
+    }
+    const updated = await warehouse.update(req.body);
+    return res.json(updated);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to update warehouse', details: error.message });
+  }
+};
+
+// @desc    Delete a warehouse
+// @route   DELETE /api/warehouses/:id
+exports.deleteWarehouse = async (req, res) => {
+  try {
+    const warehouse = await Warehouse.findByPk(req.params.id);
+    if (!warehouse) {
+      return res.status(404).json({ error: 'Warehouse not found' });
+    }
+    await warehouse.destroy();
+    return res.json({ message: 'Warehouse deleted successfully' });
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to delete warehouse', details: error.message });
+  }
+};
+
+// @desc    Assign a user to a warehouse
+// @route   POST /api/warehouses/:id/users
+exports.assignUserToWarehouse = async (req, res) => {
+  try {
+    const warehouseId = req.params.id;
+    const { userId } = req.body;
+
+    const warehouse = await Warehouse.findByPk(warehouseId);
+    if (!warehouse) {
+      return res.status(404).json({ error: 'Warehouse not found' });
+    }
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Prevent duplicate assignment
+    const alreadyAssigned = await warehouse.hasUser(user);
+    if (alreadyAssigned) {
+      return res.status(400).json({ error: 'User already assigned to this warehouse' });
+    }
+
+    await warehouse.addUser(user);
+    const updated = await Warehouse.findByPk(warehouseId, {
+      include: [{ model: User, through: { attributes: [] } }],
+    });
+
+    return res.json(updated);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to assign user', details: error.message });
+  }
+};
+
+// @desc    Get all users assigned to a warehouse
+// @route   GET /api/warehouses/:id/users
+exports.getWarehouseUsers = async (req, res) => {
+  try {
+    const warehouse = await Warehouse.findByPk(req.params.id, {
+      include: [{ model: User, through: { attributes: [] } }],
+    });
+    if (!warehouse) {
+      return res.status(404).json({ error: 'Warehouse not found' });
+    }
+    return res.json(warehouse.Users);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to fetch users', details: error.message });
   }
 };
