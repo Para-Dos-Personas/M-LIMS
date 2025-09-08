@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { ComponentLog, Component, User } = require('../models');
-const authenticateToken = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // Apply authentication to all log routes
 router.use(authenticateToken);
@@ -25,7 +25,6 @@ router.get('/', async (req, res) => {
       order: [['createdAt', 'DESC']],
       limit: 100 // Limit to last 100 logs for performance
     });
-
     res.json(logs);
   } catch (error) {
     console.error('Get all logs error:', error);
@@ -38,8 +37,8 @@ router.get('/paginated', async (req, res) => {
   try {
     const { page = 1, limit = 20, componentId, changeType } = req.query;
     const offset = (page - 1) * limit;
-
     const whereClause = {};
+    
     if (componentId) whereClause.componentId = componentId;
     if (changeType) whereClause.changeType = changeType;
 
