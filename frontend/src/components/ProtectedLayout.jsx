@@ -17,7 +17,7 @@ const Main = styled('main', {
 })(({ theme, isMobile }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
-  marginLeft: isMobile ? 0 : `${drawerWidth}px`,
+  marginLeft: isMobile ? 0 : `${drawerWidth - 270}px`,
   transition: theme.transitions.create('margin', {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
